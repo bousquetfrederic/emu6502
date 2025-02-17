@@ -1,0 +1,15 @@
+# LDA #10
+A9x
+10
+# STA #3000
+8D
+00
+30
+# LDX #3000
+AE
+00
+30
+# LDA FFED,X
+BD
+ED
+FF
