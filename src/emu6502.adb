@@ -31,7 +31,7 @@ begin
    Cpu.Reset (MyCPU);
 
    Cpu.Logging.Dump_Status (MyCPU, Standard_Output);
-   for I in 1 .. 22 loop
+   for I in 1 .. 32 loop
       Cpu.Tick (MyCPU, MyMem);
       Cpu.Logging.Dump_Status (MyCPU, Standard_Output);
    end loop;

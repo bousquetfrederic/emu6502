@@ -4,6 +4,10 @@ private package Cpu.Operations is
 
    Cpu_Internal_Wrong_Operation : exception;
 
+   procedure Add_With_Carry
+     (Cpu : in out T_Cpu;
+      Mem :        Memory.T_Memory);
+
    procedure Jump (Cpu : in out T_Cpu;
                    Mem :        Memory.T_Memory);
 

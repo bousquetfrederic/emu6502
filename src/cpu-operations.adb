@@ -4,6 +4,36 @@ with Cpu.Status_Register;
 
 package body Cpu.Operations is
 
+   procedure Add_With_Carry
+     (Cpu : in out T_Cpu;
+      Mem :        Memory.T_Memory)
+   is
+      use type Data_Types.T_9_Bits;
+      Value : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+             (Addressing_Type => Cpu.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Cpu.Registers);
+      Total : constant Data_Types.T_9_Bits
+        := Cpu.Registers.A + Value
+             + Status_Register.C_As_Byte (Cpu.Registers.SR.C);
+      Total_8_bits : constant Data_Types.T_Byte
+        := Data_Types.T_Byte (Total and 2#011111111#);
+   begin
+      Status_Register.Set_C
+        (SR    => Cpu.Registers.SR,
+         Value => Total);
+      Status_Register.Set_V
+        (SR => Cpu.Registers.SR,
+         Value_1 => Cpu.Registers.A,
+         Value_2 => Value,
+         Result  => Total_8_bits);
+      Status_Register.Set_N_And_Z
+        (SR    => Cpu.Registers.SR,
+         Value => Total_8_bits);
+      Cpu.Registers.A := Total_8_bits;
+   end Add_With_Carry;
+
    procedure Jump (Cpu : in out T_Cpu;
                    Mem :        Memory.T_Memory) is
    begin
