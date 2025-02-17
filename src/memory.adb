@@ -90,4 +90,28 @@ package body Memory is
       end if;
    end Load_To_ROM;
 
+   procedure Load_Text_File_To_ROM
+     (Mem     : in out T_Memory;
+      Address :        Data_Types.T_Address;
+      File    :        Ada.Text_IO.File_Type)
+   is
+      use Ada.Text_IO;
+      use type Data_Types.T_Address;
+      Where_To : Data_Types.T_Address := Address;
+   begin
+      while not End_Of_File (File) loop
+         declare
+            S : constant String := Get_Line (File);
+         begin
+            if S (S'First) /= '#'
+            then
+               Write_Byte_To_ROM
+                 (Mem, Where_To, Data_Types.T_Byte'Value
+                                   ("16#" & S (1 .. 2) & "#"));
+               Where_To := Where_To + Data_Types.One_Byte;
+            end if;
+         end;
+      end loop;
+   end Load_Text_File_To_ROM;
+
 end Memory;

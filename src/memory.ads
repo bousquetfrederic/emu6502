@@ -1,4 +1,6 @@
+with Ada.Text_IO;
 with Data_Types;
+
 package Memory is
 
    type T_Memory is limited private;
@@ -29,6 +31,10 @@ package Memory is
    procedure Load_To_ROM (Mem     : in out T_Memory;
                           Address :        Data_Types.T_Address;
                           Bytes   :        Data_Types.T_Byte_Array);
+
+   procedure Load_Text_File_To_ROM (Mem : in out T_Memory;
+                                    Address : Data_Types.T_Address;
+                                    File    : Ada.Text_IO.File_Type);
 
 private
 
