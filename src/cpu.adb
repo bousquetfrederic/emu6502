@@ -1,5 +1,4 @@
 with Cpu;
-with Cpu.Logging;
 with Cpu.Operations;
 with Data_Types;
 use type Data_Types.T_Address;
@@ -14,9 +13,10 @@ package body Cpu is
       others => False
    );
 
-   To_Next_Instruction : constant array (T_Valid_Addressing_Types)
+   To_Next_Instruction : constant array (T_Addressing_Types)
      of T_Address_Increment :=
-   (ACCUMULATOR => 1,
+   (NONE        => 0,
+    ACCUMULATOR => 1,
     IMPLIED     => 1,
     IMMEDIATE   => 2,
     ZERO_PAGE   => 2,
@@ -67,12 +67,20 @@ package body Cpu is
                raise Cpu_Was_Killed;
             when RESET =>
                Proc.Current_Instruction := (JMP, ABSOLUTE, 1);
+            when BRANCH =>
+               --  This is just to way for extra cycles
+               --  after a Branch instruction.
+               --  PC has already been changed
+               null;
             when ADC =>
                Operations.Add_With_Carry (Proc, Mem);
             when ASL | ROL =>
                Operations.Shift_Or_Rotate_Left (Proc, Mem);
             when AND_I | EOR | ORA =>
                Operations.Logic_Mem_With_A (Proc, Mem);
+            when BCC | BCS | BEQ | BMI |
+                 BNE | BPL | BVC | BVS =>
+               Operations.Branch (Proc, Mem);
             when LDA | LDX | LDY =>
                Operations.Load_Value (Proc, Mem);
             when STA | STX | STY =>
@@ -96,11 +104,10 @@ package body Cpu is
                      (Proc.Current_Instruction.Addressing);
             end if;
             --  Fetch the new instruction
-            Proc.Current_Instruction :=
-              Instruction_From_OP_Code
-                (Memory.Read_Byte (Mem, Proc.Registers.PC));
-            Cpu.Logging.Dump_Last_Finished_Instruction (Proc);
-            Cpu.Logging.Dump_Registers (Proc);
+            Operations.Change_Instruction
+              (Proc,
+               Instruction_From_OP_Code
+                (Memory.Read_Byte (Mem, Proc.Registers.PC)));
          end if;
       end if;
    end Tick;

@@ -39,16 +39,22 @@ package body Cpu.Data_Access is
          (Memory.Read_Word (Mem, Address)));
 
    function Addressing_Points_To
-     (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
+     (Addressing_Type : T_Valid_Addressing_Types;
       Mem             : Memory.T_Memory;
       Registers       : T_Registers)
    return T_Location is
-      use type Data_Types.T_Byte;
+      use all type Data_Types.T_Byte;
+      use type Data_Types.T_Address;
       Where_To : Data_Types.T_Address := 16#0000#;
    begin
       case Addressing_Type is
+         when IMPLIED =>
+            raise Cpu_Internal_Wrong_Data_Access;
          when ACCUMULATOR =>
             return (L_ACCUMULATOR, Where_To);
+         when RELATIVE =>
+            Where_To := Registers.PC
+              + Byte_To_Signed (Following_Byte (Mem, Registers.PC));
          when IMMEDIATE =>
             Where_To := Registers.PC + Data_Types.One_Byte;
          when ZERO_PAGE   =>
@@ -142,6 +148,14 @@ package body Cpu.Data_Access is
       return (L_MEMORY, Where_To);
    end Addressing_Points_To;
 
+   function Addresses_On_Same_Page
+     (Address_1 : Data_Types.T_Address;
+      Address_2 : Data_Types.T_Address)
+   return Boolean is
+      use type Data_Types.T_Address;
+   begin
+      return (Address_1 and 16#FF00#) = (Address_2 and 16#FF00#);
+   end Addresses_On_Same_Page;
    --  -------------------------------------------------------
    --  Get the address where the addressing type
    --  tells you to.

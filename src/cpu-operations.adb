@@ -1,8 +1,74 @@
 with Data_Types;
 with Cpu.Data_Access;
 with Cpu.Status_Register;
+with Cpu.Logging;
 
 package body Cpu.Operations is
+
+   procedure Change_Instruction
+     (Proc : in out T_Cpu;
+      I    :        T_Instruction) is
+   begin
+      Logging.Dump_Current_Instruction (Proc);
+      Logging.Dump_Registers (Proc);
+      Proc.Current_Instruction := I;
+   end Change_Instruction;
+
+   procedure Branch
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory)
+   is
+      use all type Data_Access.T_Location_Kind;
+      Where_To  : Data_Access.T_Location;
+      Condition : Boolean;
+   begin
+      case Proc.Current_Instruction.Instruction_Type is
+         when BCC =>
+            Condition := not Proc.Registers.SR.C;
+         when BCS =>
+            Condition := Proc.Registers.SR.C;
+         when BEQ =>
+            Condition := Proc.Registers.SR.Z;
+         when BMI =>
+            Condition := Proc.Registers.SR.N;
+         when BNE =>
+            Condition := not Proc.Registers.SR.Z;
+         when BPL =>
+            Condition := not Proc.Registers.SR.N;
+         when BVC =>
+            Condition := not Proc.Registers.SR.V;
+         when BVS =>
+            Condition := Proc.Registers.SR.V;
+         when others =>
+            raise Cpu_Internal_Wrong_Operation
+              with Proc.Current_Instruction.Instruction_Type'Image;
+      end case;
+      if Condition then
+         Where_To := Data_Access.Addressing_Points_To
+           (Addressing_Type => Proc.Current_Instruction.Addressing,
+            Mem             => Mem,
+            Registers       => Proc.Registers);
+         if Where_To.Kind = L_ACCUMULATOR
+         then
+            raise Cpu_Internal_Wrong_Operation;
+         end if;
+         declare
+            New_Instruction : T_Instruction;
+         begin
+            New_Instruction.Instruction_Type := BRANCH;
+            New_Instruction.Addressing := NONE;
+            if Data_Access.Addresses_On_Same_Page
+                 (Proc.Registers.PC, Where_To.Address)
+            then
+               New_Instruction.Cycles := 1;
+            else
+               New_Instruction.Cycles := 2;
+            end if;
+            Change_Instruction (Proc, New_Instruction);
+            Proc.Registers.PC := Where_To.Address;
+         end;
+      end if;
+   end Branch;
 
    procedure Shift_Or_Rotate_Left
      (Cpu : in out T_Cpu;

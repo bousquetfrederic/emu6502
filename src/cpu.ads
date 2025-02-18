@@ -53,7 +53,7 @@ private
    type T_Cycle_Number is range 0 .. 7;
 
    subtype T_Address_Increment is
-           Data_Types.T_Address range 1 .. 3;
+           Data_Types.T_Address range 0 .. 3;
 
    type T_Addressing_Types is
    (NONE,
@@ -76,6 +76,7 @@ private
    (INVALID,
     KILL,
     RESET,
+    BRANCH,
     ADC, AND_I, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
     CLC, CLD, CLI, CLV, CMP, CPX, CPY, DEC, DEX, DEY,

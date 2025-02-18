@@ -12,7 +12,7 @@ private package Cpu.Data_Access is
    end record;
 
    function Addressing_Points_To
-     (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
+     (Addressing_Type : T_Valid_Addressing_Types;
       Mem             : Memory.T_Memory;
       Registers       : T_Registers)
    return T_Location;
@@ -26,6 +26,11 @@ private package Cpu.Data_Access is
       Pre => Addressing_Type = ABSOLUTE
              or else
              Addressing_Type = INDIRECT;
+
+   function Addresses_On_Same_Page
+     (Address_1 : Data_Types.T_Address;
+      Address_2 : Data_Types.T_Address)
+   return Boolean;
 
    function Fetch_Byte
      (Location  : T_Location;
