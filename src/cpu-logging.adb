@@ -1,5 +1,5 @@
 with Ada; use Ada;
-with Cpu.Conversions; use Cpu.Conversions;
+with Cpu.Status_Register; use Cpu.Status_Register;
 
 package body Cpu.Logging is
 
@@ -37,7 +37,8 @@ package body Cpu.Logging is
       Address_IO.Put (File, Cpu.Registers.PC);
       Text_IO.New_Line (File);
       Text_IO.Put (File, "SR = ");
-      Byte_IO.Put (File, SR_As_Byte (Cpu), Width => 8, Base => 2);
+      Byte_IO.Put (File, SR_As_Byte (Cpu.Registers.SR),
+                   Width => 8, Base => 2);
       Text_IO.New_Line (File);
    end Dump_Status;
 
