@@ -102,8 +102,6 @@ private
    record
       Registers : T_Registers;
       Clock_Counter : T_Clock_Counter := 0;
-      Last_Finished_Instruction : T_Instruction
-        := (INVALID, NONE, 0);
       Current_Instruction : T_Instruction
         := (RESET, NONE, 7);
    end record;

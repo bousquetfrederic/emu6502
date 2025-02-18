@@ -9,31 +9,34 @@ private package Cpu.Operations is
       I    :        T_Instruction);
 
    procedure Add_With_Carry
-     (Cpu : in out T_Cpu;
-      Mem :        Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
 
    procedure Branch
      (Proc : in out T_Cpu;
-      Mem :        Memory.T_Memory);
+      Mem  :        Memory.T_Memory);
+
+   procedure Clear
+     (Proc : in out T_Cpu);
 
    procedure Jump
-     (Cpu : in out T_Cpu;
-      Mem :        Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
 
    procedure Load_Value
-     (Cpu : in out T_Cpu;
-      Mem :        Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
 
    procedure Logic_Mem_With_A
-     (Cpu : in out T_Cpu;
-      Mem :        Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
 
    procedure Shift_Or_Rotate_Left
-     (Cpu : in out T_Cpu;
-      Mem : in out Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory);
 
    procedure Store_Value
-     (Cpu : in out T_Cpu;
-      Mem : in out Memory.T_Memory);
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory);
 
 end Cpu.Operations;

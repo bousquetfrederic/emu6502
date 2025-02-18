@@ -1,5 +1,4 @@
 with Cpu;
-with Cpu.Logging;
 with Memory;
 with Ada.Text_IO; use Ada.Text_IO;
 
@@ -22,7 +21,6 @@ begin
 
    Cpu.Reset (MyCPU);
 
-   Cpu.Logging.Dump_Status (MyCPU);
    loop
       begin
          Cpu.Tick (MyCPU, MyMem);
@@ -31,6 +29,5 @@ begin
             exit;
       end;
    end loop;
-   Cpu.Logging.Dump_Status (MyCPU);
 
 end Emu6502;

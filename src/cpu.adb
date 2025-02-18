@@ -44,7 +44,6 @@ package body Cpu is
       Proc.Registers.A  := 16#00#;
       Proc.Registers.X  := 16#00#;
       Proc.Registers.Y  := 16#00#;
-      Proc.Last_Finished_Instruction := (INVALID, NONE, 0);
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
@@ -59,14 +58,13 @@ package body Cpu is
         Proc.Current_Instruction.Cycles - 1;
       --  Did the current instruction finish?
       if Proc.Current_Instruction.Cycles = 0 then
-         Proc.Last_Finished_Instruction :=
-           Proc.Current_Instruction;
          --  Perform the instruction
          case Proc.Current_Instruction.Instruction_Type is
             when KILL =>
                raise Cpu_Was_Killed;
             when RESET =>
-               Proc.Current_Instruction := (JMP, ABSOLUTE, 1);
+               Operations.Change_Instruction
+                 (Proc, (JMP, ABSOLUTE, 1));
             when BRANCH =>
                --  This is just to way for extra cycles
                --  after a Branch instruction.
@@ -81,6 +79,8 @@ package body Cpu is
             when BCC | BCS | BEQ | BMI |
                  BNE | BPL | BVC | BVS =>
                Operations.Branch (Proc, Mem);
+            when CLC | CLD | CLI | CLV =>
+               Operations.Clear (Proc);
             when LDA | LDX | LDY =>
                Operations.Load_Value (Proc, Mem);
             when STA | STX | STY =>
