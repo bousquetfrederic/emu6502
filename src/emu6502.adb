@@ -31,8 +31,14 @@ begin
    Cpu.Reset (MyCPU);
 
    Cpu.Logging.Dump_Status (MyCPU, Standard_Output);
-   for I in 1 .. 32 loop
-      Cpu.Tick (MyCPU, MyMem);
+   loop
+      begin
+         Cpu.Tick (MyCPU, MyMem);
+      exception
+         when Cpu.Cpu_Was_Killed =>
+            exit;
+      end;
       Cpu.Logging.Dump_Status (MyCPU, Standard_Output);
    end loop;
+
 end Emu6502;

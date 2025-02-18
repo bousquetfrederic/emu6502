@@ -211,6 +211,10 @@ return T_Instruction is
    16#9A# => (TXS, IMPLIED,     2),
    --  TYA --
    16#98# => (TYA, IMPLIED,     2),
+   --  JAM KILL THE CPU --
+   16#02# | 16#12# | 16#22# | 16#32# | 16#42# |
+   16#52# | 16#62# | 16#72# | 16#92# | 16#B2# |
+   16#D2# | 16#F2#  => (KILL, NONE, 1),
    --  Invalid --
    others => (INVALID, NONE,    0)
    );

@@ -35,11 +35,11 @@ package body Cpu.Status_Register is
       SR.C := Bit_Test.Bit_8_Is_Set (Value);
    end Set_C;
 
-   function C_As_Byte (C : Boolean)
+   function C_As_Byte (SR : T_SR)
      return Data_Types.T_Byte
    is
    begin
-      if C then
+      if SR.C then
          return Data_Types.One_Byte;
       else
          return 0;

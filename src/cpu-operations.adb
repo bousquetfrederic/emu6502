@@ -4,10 +4,11 @@ with Cpu.Status_Register;
 
 package body Cpu.Operations is
 
-   procedure Shift_Left
+   procedure Shift_Or_Rotate_Left
      (Cpu : in out T_Cpu;
       Mem : in out Memory.T_Memory)
    is
+      use type Data_Types.T_Byte;
       use type Data_Types.T_9_Bits;
       Where_Is_Data : constant Data_Access.T_Location
         := Data_Access.Addressing_Points_To
@@ -21,9 +22,17 @@ package body Cpu.Operations is
               Registers => Cpu.Registers);
       Shifted : constant Data_Types.T_9_Bits
         := Data_Types.T_9_Bits (Value) * 2#10#;
-      Shifted_8_Bits : constant Data_Types.T_Byte
+      Shifted_8_Bits : Data_Types.T_Byte
         := Data_Types.T_Byte (Shifted and 2#011111111#);
    begin
+      --  If it's a ROTATE not a SHIFT
+      --  add the Carry in bit 0
+      if Cpu.Current_Instruction.Instruction_Type = ROL
+      then
+         Shifted_8_Bits
+           := Shifted_8_Bits
+              + Status_Register.C_As_Byte (Cpu.Registers.SR);
+      end if;
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
          Mem       => Mem,
@@ -35,7 +44,7 @@ package body Cpu.Operations is
       Status_Register.Set_N_And_Z
         (SR    => Cpu.Registers.SR,
          Value => Shifted_8_Bits);
-   end Shift_Left;
+   end Shift_Or_Rotate_Left;
 
    procedure Add_With_Carry
      (Cpu : in out T_Cpu;
@@ -49,7 +58,7 @@ package body Cpu.Operations is
               Registers       => Cpu.Registers);
       Total : constant Data_Types.T_9_Bits
         := Cpu.Registers.A + Value
-             + Status_Register.C_As_Byte (Cpu.Registers.SR.C);
+             + Status_Register.C_As_Byte (Cpu.Registers.SR);
       Total_8_bits : constant Data_Types.T_Byte
         := Data_Types.T_Byte (Total and 2#011111111#);
    begin

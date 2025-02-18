@@ -16,7 +16,7 @@ private package Cpu.Status_Register is
      (SR    : in out T_SR;
       Value :        Data_Types.T_9_Bits);
 
-   function C_As_Byte (C : Boolean)
+   function C_As_Byte (SR : T_SR)
      return Data_Types.T_Byte;
 
    function SR_As_Byte (SR : T_SR)

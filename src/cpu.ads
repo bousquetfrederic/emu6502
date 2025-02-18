@@ -7,6 +7,7 @@ package Cpu is
    type T_Cpu is limited private;
 
    Invalid_Instruction : exception;
+   Cpu_Was_Killed      : exception;
 
    procedure Reset (Cpu : out T_Cpu);
 
@@ -73,6 +74,7 @@ private
 
    type T_Instruction_Types is
    (INVALID,
+    KILL,
     RESET,
     ADC, AND_I, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,

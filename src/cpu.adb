@@ -62,12 +62,14 @@ package body Cpu is
            Cpu.Current_Instruction;
          --  Perform the instruction
          case Cpu.Current_Instruction.Instruction_Type is
+            when KILL =>
+               raise Cpu_Was_Killed;
             when RESET =>
                Cpu.Current_Instruction := (JMP, ABSOLUTE, 1);
             when ADC =>
                Operations.Add_With_Carry (Cpu, Mem);
-            when ASL =>
-               Operations.Shift_Left (Cpu, Mem);
+            when ASL | ROL =>
+               Operations.Shift_Or_Rotate_Left (Cpu, Mem);
             when AND_I | EOR | ORA =>
                Operations.Logic_Mem_With_A (Cpu, Mem);
             when LDA | LDX | LDY =>

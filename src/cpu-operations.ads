@@ -20,7 +20,7 @@ private package Cpu.Operations is
      (Cpu : in out T_Cpu;
       Mem :        Memory.T_Memory);
 
-   procedure Shift_Left
+   procedure Shift_Or_Rotate_Left
      (Cpu : in out T_Cpu;
       Mem : in out Memory.T_Memory);
 
