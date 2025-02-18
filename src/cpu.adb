@@ -1,5 +1,6 @@
 with Cpu;
 with Cpu.Operations;
+with Cpu.Logging;
 with Data_Types;
 use type Data_Types.T_Address;
 
@@ -53,6 +54,8 @@ package body Cpu is
       PC_Before_Tick : constant Data_Types.T_Address
         := Proc.Registers.PC;
    begin
+      Proc.Clock_Counter := Proc.Clock_Counter + 1;
+      Logging.Dump_Clock_Counter(Proc);
       --  One more cycle
       Proc.Current_Instruction.Cycles :=
         Proc.Current_Instruction.Cycles - 1;

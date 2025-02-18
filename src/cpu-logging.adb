@@ -16,6 +16,14 @@ package body Cpu.Logging is
       end if;
    end Dump_Current_Instruction;
 
+   procedure Dump_Clock_Counter (Proc : T_Cpu) is
+   begin
+      if Debug_On then
+         Text_IO.Put_Line
+           (Debug_File, "Clock: " & Proc.Clock_Counter'Image);
+      end if;
+   end Dump_Clock_Counter;
+
    procedure Dump_Registers (Proc : T_Cpu) is
    begin
       if Debug_On then
