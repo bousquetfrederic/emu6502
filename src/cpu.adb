@@ -66,6 +66,8 @@ package body Cpu is
                Cpu.Current_Instruction := (JMP, ABSOLUTE, 1);
             when ADC =>
                Operations.Add_With_Carry (Cpu, Mem);
+            when ASL =>
+               Operations.Shift_Left (Cpu, Mem);
             when AND_I | EOR | ORA =>
                Operations.Logic_Mem_With_A (Cpu, Mem);
             when LDA | LDX | LDY =>

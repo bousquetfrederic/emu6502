@@ -4,6 +4,39 @@ with Cpu.Status_Register;
 
 package body Cpu.Operations is
 
+   procedure Shift_Left
+     (Cpu : in out T_Cpu;
+      Mem : in out Memory.T_Memory)
+   is
+      use type Data_Types.T_9_Bits;
+      Where_Is_Data : constant Data_Access.T_Location
+        := Data_Access.Addressing_Points_To
+             (Addressing_Type => Cpu.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Cpu.Registers);
+      Value : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+             (Location  => Where_Is_Data,
+              Mem       => Mem,
+              Registers => Cpu.Registers);
+      Shifted : constant Data_Types.T_9_Bits
+        := Data_Types.T_9_Bits (Value) * 2#10#;
+      Shifted_8_Bits : constant Data_Types.T_Byte
+        := Data_Types.T_Byte (Shifted and 2#011111111#);
+   begin
+      Data_Access.Store_Byte
+        (Location  => Where_Is_Data,
+         Mem       => Mem,
+         Registers => Cpu.Registers,
+         Value     => Shifted_8_Bits);
+      Status_Register.Set_C
+        (SR    => Cpu.Registers.SR,
+         Value => Shifted);
+      Status_Register.Set_N_And_Z
+        (SR    => Cpu.Registers.SR,
+         Value => Shifted_8_Bits);
+   end Shift_Left;
+
    procedure Add_With_Carry
      (Cpu : in out T_Cpu;
       Mem :        Memory.T_Memory)
@@ -71,7 +104,7 @@ package body Cpu.Operations is
    end Load_Value;
 
    procedure Store_Value
-     (Cpu :        T_Cpu;
+     (Cpu : in out T_Cpu;
       Mem : in out Memory.T_Memory)
    is
       Value : Data_Types.T_Byte;
