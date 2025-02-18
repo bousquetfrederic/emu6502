@@ -1,4 +1,5 @@
 with Cpu;
+with Cpu.Logging;
 with Cpu.Operations;
 with Data_Types;
 use type Data_Types.T_Address;
@@ -35,49 +36,49 @@ package body Cpu is
    function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
      return T_Instruction is separate;
 
-   procedure Reset (Cpu : out T_Cpu) is
+   procedure Reset (Proc : out T_Cpu) is
    begin
-      Cpu.Registers.SR := Reset_SR;
-      Cpu.Registers.SP := 16#FD#;
-      Cpu.Registers.PC := 16#FFFB#;
-      Cpu.Registers.A  := 16#00#;
-      Cpu.Registers.X  := 16#00#;
-      Cpu.Registers.Y  := 16#00#;
-      Cpu.Last_Finished_Instruction := (INVALID, NONE, 0);
-      Cpu.Current_Instruction := (RESET, NONE, 7);
+      Proc.Registers.SR := Reset_SR;
+      Proc.Registers.SP := 16#FD#;
+      Proc.Registers.PC := 16#FFFB#;
+      Proc.Registers.A  := 16#00#;
+      Proc.Registers.X  := 16#00#;
+      Proc.Registers.Y  := 16#00#;
+      Proc.Last_Finished_Instruction := (INVALID, NONE, 0);
+      Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
-   procedure Tick (Cpu : in out T_Cpu;
-                   Mem : in out Memory.T_Memory)
+   procedure Tick (Proc : in out T_Cpu;
+                   Mem  : in out Memory.T_Memory)
    is
       PC_Before_Tick : constant Data_Types.T_Address
-        := Cpu.Registers.PC;
+        := Proc.Registers.PC;
    begin
       --  One more cycle
-      Cpu.Current_Instruction.Cycles :=
-        Cpu.Current_Instruction.Cycles - 1;
+      Proc.Current_Instruction.Cycles :=
+        Proc.Current_Instruction.Cycles - 1;
       --  Did the current instruction finish?
-      if Cpu.Current_Instruction.Cycles = 0 then
-         Cpu.Last_Finished_Instruction :=
-           Cpu.Current_Instruction;
+      if Proc.Current_Instruction.Cycles = 0 then
+         Proc.Last_Finished_Instruction :=
+           Proc.Current_Instruction;
          --  Perform the instruction
-         case Cpu.Current_Instruction.Instruction_Type is
+         case Proc.Current_Instruction.Instruction_Type is
             when KILL =>
                raise Cpu_Was_Killed;
             when RESET =>
-               Cpu.Current_Instruction := (JMP, ABSOLUTE, 1);
+               Proc.Current_Instruction := (JMP, ABSOLUTE, 1);
             when ADC =>
-               Operations.Add_With_Carry (Cpu, Mem);
+               Operations.Add_With_Carry (Proc, Mem);
             when ASL | ROL =>
-               Operations.Shift_Or_Rotate_Left (Cpu, Mem);
+               Operations.Shift_Or_Rotate_Left (Proc, Mem);
             when AND_I | EOR | ORA =>
-               Operations.Logic_Mem_With_A (Cpu, Mem);
+               Operations.Logic_Mem_With_A (Proc, Mem);
             when LDA | LDX | LDY =>
-               Operations.Load_Value (Cpu, Mem);
+               Operations.Load_Value (Proc, Mem);
             when STA | STX | STY =>
-               Operations.Store_Value (Cpu, Mem);
+               Operations.Store_Value (Proc, Mem);
             when JMP =>
-               Operations.Jump (Cpu, Mem);
+               Operations.Jump (Proc, Mem);
             when others =>
                raise Invalid_Instruction;
          end case;
@@ -85,19 +86,21 @@ package body Cpu is
          --  If there is still a cycle left, it means an
          --  instruction was added in the processing above
          --  (RESET adds a JMP), so don't do anything
-         if Cpu.Current_Instruction.Cycles = 0 then
+         if Proc.Current_Instruction.Cycles = 0 then
             --  Move the PC to the next instruction
             --  unless it was changed by the current
             --  instruction (exemple: JMP)
-            if Cpu.Registers.PC = PC_Before_Tick then
-               Cpu.Registers.PC := Cpu.Registers.PC
+            if Proc.Registers.PC = PC_Before_Tick then
+               Proc.Registers.PC := Proc.Registers.PC
                  + To_Next_Instruction
-                     (Cpu.Current_Instruction.Addressing);
+                     (Proc.Current_Instruction.Addressing);
             end if;
             --  Fetch the new instruction
-            Cpu.Current_Instruction :=
+            Proc.Current_Instruction :=
               Instruction_From_OP_Code
-                (Memory.Read_Byte (Mem, Cpu.Registers.PC));
+                (Memory.Read_Byte (Mem, Proc.Registers.PC));
+            Cpu.Logging.Dump_Last_Finished_Instruction (Proc);
+            Cpu.Logging.Dump_Registers (Proc);
          end if;
       end if;
    end Tick;

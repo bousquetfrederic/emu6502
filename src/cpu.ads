@@ -9,10 +9,10 @@ package Cpu is
    Invalid_Instruction : exception;
    Cpu_Was_Killed      : exception;
 
-   procedure Reset (Cpu : out T_Cpu);
+   procedure Reset (Proc : out T_Cpu);
 
-   procedure Tick (Cpu    : in out T_Cpu;
-                   Mem    : in out Memory.T_Memory);
+   procedure Tick (Proc : in out T_Cpu;
+                   Mem  : in out Memory.T_Memory);
 
 private
 
