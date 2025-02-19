@@ -2,24 +2,10 @@ with Data_Types;
 
 private package Cpu.Status_Register is
 
-   procedure Set_V
-     (SR      : in out T_SR;
-      Value_1 :        Data_Types.T_Byte;
-      Value_2 :        Data_Types.T_Byte;
-      Result  :        Data_Types.T_Byte);
-
-   procedure Set_N_And_Z
-     (SR    : in out T_SR;
-      Value :        Data_Types.T_Byte);
-
-   procedure Set_C
-     (SR    : in out T_SR;
-      Value :        Data_Types.T_9_Bits);
-
-   function C_As_Byte (SR : T_SR)
+   function C_As_Byte (C : Boolean)
      return Data_Types.T_Byte;
 
-   function Not_C_As_Byte (SR : T_SR)
+   function Not_C_As_Byte (C : Boolean)
      return Data_Types.T_Byte;
 
    function SR_As_Byte (SR : T_SR)

@@ -1,9 +1,20 @@
 with Data_Types;
+with Cpu.Arithmetic;
+with Cpu.Bit_Test;
 with Cpu.Data_Access;
-with Cpu.Status_Register;
 with Cpu.Logging;
 
 package body Cpu.Operations is
+
+   procedure Set_N_And_Z
+        (Value    :     Data_Types.T_Byte;
+         Negative : out Boolean;
+         Zero     : out Boolean)
+   is
+   begin
+      Negative := Bit_Test.Bit_X_Is_Set (Value, 7);
+      Zero     := Data_Types.Is_Zero (Value);
+   end Set_N_And_Z;
 
    procedure Change_Instruction
      (Proc : in out T_Cpu;
@@ -109,103 +120,70 @@ package body Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory)
    is
-      use type Data_Types.T_Byte;
-      use type Data_Types.T_9_Bits;
       Where_Is_Data : constant Data_Access.T_Location
         := Data_Access.Addressing_Points_To
              (Addressing_Type => Proc.Current_Instruction.Addressing,
               Mem             => Mem,
               Registers       => Proc.Registers);
-      Value : constant Data_Types.T_Byte
-        := Data_Access.Fetch_Byte
+      Shifted_8_Bits : Data_Types.T_Byte;
+   begin
+      Arithmetic.Shift_Or_Rotate_Left
+        (Value =>
+            Data_Access.Fetch_Byte
              (Location  => Where_Is_Data,
               Mem       => Mem,
-              Registers => Proc.Registers);
-      Shifted : constant Data_Types.T_9_Bits
-        := Data_Types.T_9_Bits (Value) * 2#10#;
-      Shifted_8_Bits : Data_Types.T_Byte
-        := Data_Types.T_Byte (Shifted and 2#011111111#);
-   begin
-      --  If it's a ROTATE not a SHIFT
-      --  add the Carry in bit 0
-      if Proc.Current_Instruction.Instruction_Type = ROL
-      then
-         Shifted_8_Bits
-           := Shifted_8_Bits
-              + Status_Register.C_As_Byte (Proc.Registers.SR);
-      end if;
+              Registers => Proc.Registers),
+         Carry_Before => Proc.Registers.SR.C,
+         Is_Rotate => Proc.Current_Instruction.Instruction_Type = ROL,
+         Result => Shifted_8_Bits,
+         Carry_After => Proc.Registers.SR.C,
+         Negative => Proc.Registers.SR.N,
+         Zero => Proc.Registers.SR.Z);
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
          Mem       => Mem,
          Registers => Proc.Registers,
          Value     => Shifted_8_Bits);
-      Status_Register.Set_C
-        (SR    => Proc.Registers.SR,
-         Value => Shifted);
-      Status_Register.Set_N_And_Z
-        (SR    => Proc.Registers.SR,
-         Value => Shifted_8_Bits);
    end Shift_Or_Rotate_Left;
 
    procedure Substract_with_Carry
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory)
    is
-      use type Data_Types.T_9_Bits;
-      Value : constant Data_Types.T_Byte
-        := Data_Access.Fetch_Byte
-             (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
-              Registers       => Proc.Registers);
-      Total : constant Data_Types.T_9_Bits
-        := Proc.Registers.A + Data_Types.Opposite_Of (Value)
-             + Data_Types.Opposite_Of
-                (Status_Register.Not_C_As_Byte (Proc.Registers.SR));
-      Total_8_bits : constant Data_Types.T_Byte
-        := Data_Types.T_Byte (Total and 2#011111111#);
    begin
-      Status_Register.Set_C
-        (SR    => Proc.Registers.SR,
-         Value => Total);
-      Status_Register.Set_V
-        (SR => Proc.Registers.SR,
-         Value_1 => Proc.Registers.A,
-         Value_2 => Value,
-         Result  => Total_8_bits);
-      Status_Register.Set_N_And_Z
-        (SR    => Proc.Registers.SR,
-         Value => Total_8_bits);
-      Proc.Registers.A := Total_8_bits;
+      Arithmetic.Substract_With_Carry
+        (Value_1      => Proc.Registers.A,
+         Value_2      =>
+           Data_Access.Fetch_Byte
+            (Addressing_Type => Proc.Current_Instruction.Addressing,
+             Mem             => Mem,
+             Registers       => Proc.Registers),
+         Carry_Before => Proc.Registers.SR.C,
+         Result       => Proc.Registers.A,
+         Carry_After  => Proc.Registers.SR.C,
+         Negative     => Proc.Registers.SR.N,
+         Overflow     => Proc.Registers.SR.V,
+         Zero         => Proc.Registers.SR.Z);
    end Substract_with_Carry;
 
    procedure Add_With_Carry
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory)
    is
-      use type Data_Types.T_9_Bits;
-      Value : constant Data_Types.T_Byte
-        := Data_Access.Fetch_Byte
-             (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
-              Registers       => Proc.Registers);
-      Total : constant Data_Types.T_9_Bits
-        := Proc.Registers.A + Value
-             + Status_Register.C_As_Byte (Proc.Registers.SR);
-      Total_8_bits : constant Data_Types.T_Byte
-        := Data_Types.T_Byte (Total and 2#011111111#);
    begin
-      Status_Register.Set_C
-        (SR    => Proc.Registers.SR,
-         Value => Total);
-      Status_Register.Set_V
-        (SR => Proc.Registers.SR,
-         Value_1 => Proc.Registers.A,
-         Value_2 => Value,
-         Result  => Total_8_bits);
-      Status_Register.Set_N_And_Z
-        (SR    => Proc.Registers.SR,
-         Value => Total_8_bits);
-      Proc.Registers.A := Total_8_bits;
+      Arithmetic.Add_With_Carry
+        (Value_1      => Proc.Registers.A,
+         Value_2      =>
+           Data_Access.Fetch_Byte
+            (Addressing_Type => Proc.Current_Instruction.Addressing,
+             Mem             => Mem,
+             Registers       => Proc.Registers),
+         Carry_Before => Proc.Registers.SR.C,
+         Result       => Proc.Registers.A,
+         Carry_After  => Proc.Registers.SR.C,
+         Negative     => Proc.Registers.SR.N,
+         Overflow     => Proc.Registers.SR.V,
+         Zero         => Proc.Registers.SR.Z);
    end Add_With_Carry;
 
    procedure Jump (Proc : in out T_Cpu;
@@ -239,9 +217,10 @@ package body Cpu.Operations is
             raise Cpu_Internal_Wrong_Operation
               with Proc.Current_Instruction.Instruction_Type'Image;
       end case;
-      Status_Register.Set_N_And_Z
-        (SR    => Proc.Registers.SR,
-         Value => Value);
+      Set_N_And_Z
+        (Value    => Value,
+         Negative => Proc.Registers.SR.N,
+         Zero     => Proc.Registers.SR.Z);
    end Load_Value;
 
    procedure Store_Value
@@ -292,9 +271,10 @@ package body Cpu.Operations is
               with Proc.Current_Instruction.Instruction_Type'Image;
       end case;
       Proc.Registers.A := Value;
-      Status_Register.Set_N_And_Z
-        (SR    => Proc.Registers.SR,
-         Value => Value);
+      Set_N_And_Z
+        (Value    => Value,
+         Negative => Proc.Registers.SR.N,
+         Zero     => Proc.Registers.SR.Z);
    end Logic_Mem_With_A;
 
 end Cpu.Operations;

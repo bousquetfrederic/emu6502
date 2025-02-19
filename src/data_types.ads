@@ -3,18 +3,21 @@ package Data_Types is
    type T_Address is mod 2**16;
    type T_Byte is mod 2**8;
 
-   subtype T_Bit_Position is Natural range 0 .. 7;
-
    One_Byte : constant T_Byte := T_Byte (1);
 
+   function Is_Zero (B : T_Byte) return Boolean
+     is (B = 0);
+
    function Opposite_Of (B : T_Byte) return T_Byte
-   is ( (B xor 2#11111111#) + One_Byte);
+   is ((B xor 2#11111111#) + One_Byte);
 
    type T_Byte_Array is array (T_Address range <>) of T_Byte;
 
    type T_Signed_Byte is range -128 .. +127;
 
    function Byte_To_Signed (B : T_Byte) return T_Signed_Byte;
+
+   subtype T_Bit_Position is Natural range 0 .. 7;
 
    type T_Word is record
       Low  : T_Byte;
