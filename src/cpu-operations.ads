@@ -12,6 +12,10 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
+   procedure Bit_Mem_With_A
+     (Proc : in out T_Cpu;
+      Mem :        Memory.T_Memory);
+
    procedure Branch
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);

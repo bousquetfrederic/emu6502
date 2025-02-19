@@ -84,6 +84,8 @@ package body Cpu is
             when BCC | BCS | BEQ | BMI |
                  BNE | BPL | BVC | BVS =>
                Operations.Branch (Proc, Mem);
+            when BIT =>
+               Operations.Bit_Mem_With_A (Proc, Mem);
             when CLC | CLD | CLI | CLV =>
                Operations.Clear_SR (Proc);
             when CMP | CPX | CPY =>

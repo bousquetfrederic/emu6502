@@ -336,6 +336,30 @@ package body Cpu.Operations is
          Value           => Value);
    end Store_Value;
 
+   procedure Bit_Mem_With_A
+     (Proc : in out T_Cpu;
+      Mem :        Memory.T_Memory)
+   is
+      use type Data_Types.T_Byte;
+      Value         : Data_Types.T_Byte;
+      Dummy_Boolean : Boolean;
+      Byte_From_Mem : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+             (Addressing_Type => Proc.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Proc.Registers);
+   begin
+      Value := Proc.Registers.A and Byte_From_Mem;
+      --  Transfer N and V to the Status Register
+      Proc.Registers.SR.N := Bit_Test.Bit_X_Is_Set (Byte_From_Mem, 7);
+      Proc.Registers.SR.V := Bit_Test.Bit_X_Is_Set (Byte_From_Mem, 6);
+      --  Set Z
+      Set_N_And_Z (Value => Value,
+                   Negative => Dummy_Boolean,
+                   Zero => Proc.Registers.SR.Z);
+      --  Don't store the value
+   end Bit_Mem_With_A;
+
    procedure Logic_Mem_With_A
      (Proc : in out T_Cpu;
       Mem :        Memory.T_Memory)
