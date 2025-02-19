@@ -19,6 +19,10 @@ private package Cpu.Operations is
    procedure Clear_SR
      (Proc : in out T_Cpu);
 
+   procedure Compare
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
+
    procedure Jump
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);

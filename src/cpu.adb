@@ -84,6 +84,8 @@ package body Cpu is
                Operations.Branch (Proc, Mem);
             when CLC | CLD | CLI | CLV =>
                Operations.Clear_SR (Proc);
+            when CMP | CPX | CPY =>
+               Operations.Compare (Proc, Mem);
             when LDA | LDX | LDY =>
                Operations.Load_Value (Proc, Mem);
             when STA | STX | STY =>

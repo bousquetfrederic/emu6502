@@ -128,17 +128,17 @@ package body Cpu.Operations is
       Shifted_8_Bits : Data_Types.T_Byte;
    begin
       Arithmetic.Shift_Or_Rotate_Left
-        (Value =>
-            Data_Access.Fetch_Byte
-             (Location  => Where_Is_Data,
-              Mem       => Mem,
-              Registers => Proc.Registers),
+        (Value        =>
+           Data_Access.Fetch_Byte
+            (Location  => Where_Is_Data,
+             Mem       => Mem,
+             Registers => Proc.Registers),
          Carry_Before => Proc.Registers.SR.C,
-         Is_Rotate => Proc.Current_Instruction.Instruction_Type = ROL,
-         Result => Shifted_8_Bits,
-         Carry_After => Proc.Registers.SR.C,
-         Negative => Proc.Registers.SR.N,
-         Zero => Proc.Registers.SR.Z);
+         Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROL,
+         Result       => Shifted_8_Bits,
+         Carry_After  => Proc.Registers.SR.C,
+         Negative     => Proc.Registers.SR.N,
+         Zero         => Proc.Registers.SR.Z);
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
          Mem       => Mem,
@@ -185,6 +185,39 @@ package body Cpu.Operations is
          Overflow     => Proc.Registers.SR.V,
          Zero         => Proc.Registers.SR.Z);
    end Add_With_Carry;
+
+   procedure Compare
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory)
+   is
+      Register_Value : Data_Types.T_Byte;
+      Dummy_Result   : Data_Types.T_Byte;
+      Dummy_Overflow : Boolean;
+   begin
+      case Proc.Current_Instruction.Instruction_Type is
+         when CMP =>
+            Register_Value := Proc.Registers.A;
+         when CPX =>
+            Register_Value := Proc.Registers.X;
+         when CPY =>
+            Register_Value := Proc.Registers.Y;
+         when others =>
+            raise Cpu_Internal_Wrong_Operation;
+      end case;
+      Arithmetic.Substract_With_Carry
+        (Value_1      => Register_Value,
+         Value_2      =>
+           Data_Access.Fetch_Byte
+            (Addressing_Type => Proc.Current_Instruction.Addressing,
+             Mem             => Mem,
+             Registers       => Proc.Registers),
+         Carry_Before => True,
+         Result       => Dummy_Result,
+         Carry_After  => Proc.Registers.SR.C,
+         Negative     => Proc.Registers.SR.N,
+         Overflow     => Dummy_Overflow,
+         Zero         => Proc.Registers.SR.Z);
+   end Compare;
 
    procedure Jump (Proc : in out T_Cpu;
                    Mem :        Memory.T_Memory) is
