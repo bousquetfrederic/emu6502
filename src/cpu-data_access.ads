@@ -4,7 +4,7 @@ private package Cpu.Data_Access is
 
    Cpu_Internal_Wrong_Data_Access : exception;
 
-   type T_Location_Kind is (L_ACCUMULATOR, L_MEMORY);
+   type T_Location_Kind is (L_ACCUMULATOR, L_X, L_Y, L_MEMORY);
    type T_Location is
    record
       Kind : T_Location_Kind;

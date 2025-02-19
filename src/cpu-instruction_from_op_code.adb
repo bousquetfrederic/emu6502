@@ -80,9 +80,9 @@ return T_Instruction is
    16#CE# => (DEC, ABSOLUTE,    6),
    16#DE# => (DEC, ABSOLUTE_X,  7),
    --  DEX --
-   16#CA# => (DEX, IMPLIED,     2),
+   16#CA# => (DEX, X,           2),
    --  DEY --
-   16#88# => (DEY, IMPLIED,     2),
+   16#88# => (DEY, Y,           2),
    --  EOR --
    16#49# => (EOR, IMMEDIATE,   2),
    16#45# => (EOR, ZERO_PAGE,   3),
@@ -98,9 +98,9 @@ return T_Instruction is
    16#EE# => (INC, ABSOLUTE,    6),
    16#FE# => (INC, ABSOLUTE_X,  7),
    --  INX --
-   16#E8# => (INX, IMPLIED,     2),
+   16#E8# => (INX, X,           2),
    --  INY --
-   16#C8# => (INY, IMPLIED,     2),
+   16#C8# => (INY, Y,           2),
    --  JMP --
    16#4C# => (JMP, ABSOLUTE,    3),
    16#6C# => (JMP, INDIRECT,    5),

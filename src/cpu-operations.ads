@@ -23,6 +23,14 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
+   procedure Decrement
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory);
+
+   procedure Increment
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory);
+
    procedure Jump
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);

@@ -18,6 +18,8 @@ package body Cpu is
      of T_Address_Increment :=
    (NONE        => 0,
     ACCUMULATOR => 1,
+    X           => 1,
+    Y           => 1,
     IMPLIED     => 1,
     IMMEDIATE   => 2,
     ZERO_PAGE   => 2,
@@ -86,8 +88,12 @@ package body Cpu is
                Operations.Clear_SR (Proc);
             when CMP | CPX | CPY =>
                Operations.Compare (Proc, Mem);
+            when DEC | DEX | DEY =>
+               Operations.Decrement (Proc, Mem);
             when LDA | LDX | LDY =>
                Operations.Load_Value (Proc, Mem);
+            when INC | INX | INY =>
+               Operations.Increment (Proc, Mem);
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Mem);
             when SBC =>

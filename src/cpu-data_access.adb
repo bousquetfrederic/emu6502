@@ -52,6 +52,10 @@ package body Cpu.Data_Access is
             raise Cpu_Internal_Wrong_Data_Access;
          when ACCUMULATOR =>
             return (L_ACCUMULATOR, Where_To);
+         when X =>
+            return (L_X, Where_To);
+         when Y =>
+            return (L_Y, Where_To);
          when RELATIVE =>
             Where_To := Registers.PC
               + Byte_To_Signed (Following_Byte (Mem, Registers.PC));
@@ -188,6 +192,10 @@ package body Cpu.Data_Access is
          when L_ACCUMULATOR =>
             --  operand is AC (implied single byte instruction)
             return Registers.A;
+         when L_X =>
+            return Registers.X;
+         when L_Y =>
+            return Registers.Y;
          when L_MEMORY      =>
             return Memory.Read_Byte
                (Mem     => Mem,
@@ -225,6 +233,10 @@ package body Cpu.Data_Access is
       case Location.Kind is
          when L_ACCUMULATOR =>
             Registers.A := Value;
+         when L_X =>
+            Registers.X := Value;
+         when L_Y =>
+            Registers.Y := Value;
          when L_MEMORY      =>
             Memory.Write_Byte (Mem    => Mem,
                               Address => Location.Address,

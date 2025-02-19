@@ -219,6 +219,62 @@ package body Cpu.Operations is
          Zero         => Proc.Registers.SR.Z);
    end Compare;
 
+   procedure Decrement
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory)
+   is
+      use type Data_Types.T_Byte;
+      Where_Is_Data : constant Data_Access.T_Location
+        := Data_Access.Addressing_Points_To
+             (Addressing_Type => Proc.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Proc.Registers);
+      Value : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+            (Location  => Where_Is_Data,
+             Mem       => Mem,
+             Registers => Proc.Registers)
+           - Data_Types.One_Byte;
+   begin
+      Data_Access.Store_Byte
+        (Location  => Where_Is_Data,
+         Mem       => Mem,
+         Registers => Proc.Registers,
+         Value     => Value);
+      Set_N_And_Z
+        (Value    => Value,
+         Negative => Proc.Registers.SR.N,
+         Zero     => Proc.Registers.SR.Z);
+   end Decrement;
+
+   procedure Increment
+     (Proc : in out T_Cpu;
+      Mem  : in out Memory.T_Memory)
+   is
+      use type Data_Types.T_Byte;
+      Where_Is_Data : constant Data_Access.T_Location
+        := Data_Access.Addressing_Points_To
+             (Addressing_Type => Proc.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Proc.Registers);
+      Value : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+            (Location  => Where_Is_Data,
+             Mem       => Mem,
+             Registers => Proc.Registers)
+           + Data_Types.One_Byte;
+   begin
+      Data_Access.Store_Byte
+        (Location  => Where_Is_Data,
+         Mem       => Mem,
+         Registers => Proc.Registers,
+         Value     => Value);
+      Set_N_And_Z
+        (Value    => Value,
+         Negative => Proc.Registers.SR.N,
+         Zero     => Proc.Registers.SR.Z);
+   end Increment;
+
    procedure Jump (Proc : in out T_Cpu;
                    Mem :        Memory.T_Memory) is
    begin
