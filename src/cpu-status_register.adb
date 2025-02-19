@@ -46,6 +46,17 @@ package body Cpu.Status_Register is
       end if;
    end C_As_Byte;
 
+   function Not_C_As_Byte (SR : T_SR)
+     return Data_Types.T_Byte
+   is
+   begin
+      if not SR.C then
+         return Data_Types.One_Byte;
+      else
+         return 0;
+      end if;
+   end Not_C_As_Byte;
+
    function SR_As_Byte (SR : T_SR)
      return Data_Types.T_Byte
    is

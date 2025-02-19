@@ -7,6 +7,9 @@ package Data_Types is
 
    One_Byte : constant T_Byte := T_Byte (1);
 
+   function Opposite_Of (B : T_Byte) return T_Byte
+   is ( (B xor 2#11111111#) + One_Byte);
+
    type T_Byte_Array is array (T_Address range <>) of T_Byte;
 
    type T_Signed_Byte is range -128 .. +127;

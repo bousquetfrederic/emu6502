@@ -73,7 +73,7 @@ package body Cpu.Operations is
       end if;
    end Branch;
 
-   procedure Clear
+   procedure Clear_SR
      (Proc : in out T_Cpu) is
    begin
       case Proc.Current_Instruction.Instruction_Type is
@@ -88,7 +88,22 @@ package body Cpu.Operations is
          when others =>
             raise Cpu_Internal_Wrong_Operation;
       end case;
-   end Clear;
+   end Clear_SR;
+
+   procedure Set_SR
+     (Proc : in out T_Cpu) is
+   begin
+      case Proc.Current_Instruction.Instruction_Type is
+         when SEC =>
+            Proc.Registers.SR.C := True;
+         when SED =>
+            Proc.Registers.SR.D := True;
+         when SEI =>
+            Proc.Registers.SR.I := True;
+         when others =>
+            raise Cpu_Internal_Wrong_Operation;
+      end case;
+   end Set_SR;
 
    procedure Shift_Or_Rotate_Left
      (Proc : in out T_Cpu;
@@ -131,6 +146,37 @@ package body Cpu.Operations is
         (SR    => Proc.Registers.SR,
          Value => Shifted_8_Bits);
    end Shift_Or_Rotate_Left;
+
+   procedure Substract_with_Carry
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory)
+   is
+      use type Data_Types.T_9_Bits;
+      Value : constant Data_Types.T_Byte
+        := Data_Access.Fetch_Byte
+             (Addressing_Type => Proc.Current_Instruction.Addressing,
+              Mem             => Mem,
+              Registers       => Proc.Registers);
+      Total : constant Data_Types.T_9_Bits
+        := Proc.Registers.A + Data_Types.Opposite_Of (Value)
+             + Data_Types.Opposite_Of
+                (Status_Register.Not_C_As_Byte (Proc.Registers.SR));
+      Total_8_bits : constant Data_Types.T_Byte
+        := Data_Types.T_Byte (Total and 2#011111111#);
+   begin
+      Status_Register.Set_C
+        (SR    => Proc.Registers.SR,
+         Value => Total);
+      Status_Register.Set_V
+        (SR => Proc.Registers.SR,
+         Value_1 => Proc.Registers.A,
+         Value_2 => Value,
+         Result  => Total_8_bits);
+      Status_Register.Set_N_And_Z
+        (SR    => Proc.Registers.SR,
+         Value => Total_8_bits);
+      Proc.Registers.A := Total_8_bits;
+   end Substract_with_Carry;
 
    procedure Add_With_Carry
      (Proc : in out T_Cpu;

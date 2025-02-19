@@ -55,7 +55,7 @@ package body Cpu is
         := Proc.Registers.PC;
    begin
       Proc.Clock_Counter := Proc.Clock_Counter + 1;
-      Logging.Dump_Clock_Counter(Proc);
+      Logging.Dump_Clock_Counter (Proc);
       --  One more cycle
       Proc.Current_Instruction.Cycles :=
         Proc.Current_Instruction.Cycles - 1;
@@ -83,11 +83,15 @@ package body Cpu is
                  BNE | BPL | BVC | BVS =>
                Operations.Branch (Proc, Mem);
             when CLC | CLD | CLI | CLV =>
-               Operations.Clear (Proc);
+               Operations.Clear_SR (Proc);
             when LDA | LDX | LDY =>
                Operations.Load_Value (Proc, Mem);
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Mem);
+            when SBC =>
+               Operations.Substract_with_Carry (Proc, Mem);
+            when SEC | SED | SEI =>
+               Operations.Set_SR (Proc);
             when JMP =>
                Operations.Jump (Proc, Mem);
             when others =>

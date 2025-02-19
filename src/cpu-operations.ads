@@ -16,7 +16,7 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
-   procedure Clear
+   procedure Clear_SR
      (Proc : in out T_Cpu);
 
    procedure Jump
@@ -31,6 +31,9 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
+   procedure Set_SR
+     (Proc : in out T_Cpu);
+
    procedure Shift_Or_Rotate_Left
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory);
@@ -38,5 +41,9 @@ private package Cpu.Operations is
    procedure Store_Value
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory);
+
+   procedure Substract_with_Carry
+     (Proc : in out T_Cpu;
+      Mem  :        Memory.T_Memory);
 
 end Cpu.Operations;
