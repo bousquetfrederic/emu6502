@@ -116,7 +116,7 @@ package body Cpu.Operations is
       end case;
    end Set_SR;
 
-   procedure Shift_Or_Rotate_Left
+   procedure Shift_Or_Rotate
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory)
    is
@@ -127,24 +127,43 @@ package body Cpu.Operations is
               Registers       => Proc.Registers);
       Shifted_8_Bits : Data_Types.T_Byte;
    begin
-      Arithmetic.Shift_Or_Rotate_Left
-        (Value        =>
-           Data_Access.Fetch_Byte
-            (Location  => Where_Is_Data,
-             Mem       => Mem,
-             Registers => Proc.Registers),
-         Carry_Before => Proc.Registers.SR.C,
-         Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROL,
-         Result       => Shifted_8_Bits,
-         Carry_After  => Proc.Registers.SR.C,
-         Negative     => Proc.Registers.SR.N,
-         Zero         => Proc.Registers.SR.Z);
+      case Proc.Current_Instruction.Instruction_Type is
+         when ASL | ROL =>
+            Arithmetic.Shift_Or_Rotate_Left
+             (Value        =>
+              Data_Access.Fetch_Byte
+               (Location  => Where_Is_Data,
+                Mem       => Mem,
+                Registers => Proc.Registers),
+               Carry_Before => Proc.Registers.SR.C,
+               Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROL,
+               Result       => Shifted_8_Bits,
+               Carry_After  => Proc.Registers.SR.C,
+               Negative     => Proc.Registers.SR.N,
+               Zero         => Proc.Registers.SR.Z);
+         when LSR | ROR =>
+            Arithmetic.Shift_Or_Rotate_Right
+             (Value        =>
+              Data_Access.Fetch_Byte
+               (Location  => Where_Is_Data,
+                Mem       => Mem,
+                Registers => Proc.Registers),
+               Carry_Before => Proc.Registers.SR.C,
+               Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROR,
+               Result       => Shifted_8_Bits,
+               Carry_After  => Proc.Registers.SR.C,
+               Negative     => Proc.Registers.SR.N,
+               Zero         => Proc.Registers.SR.Z);
+         when others =>
+            raise Cpu_Internal_Wrong_Operation
+              with Proc.Current_Instruction.Instruction_Type'Image;
+      end case;
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
          Mem       => Mem,
          Registers => Proc.Registers,
          Value     => Shifted_8_Bits);
-   end Shift_Or_Rotate_Left;
+   end Shift_Or_Rotate;
 
    procedure Substract_with_Carry
      (Proc : in out T_Cpu;

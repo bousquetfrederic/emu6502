@@ -77,8 +77,8 @@ package body Cpu is
                null;
             when ADC =>
                Operations.Add_With_Carry (Proc, Mem);
-            when ASL | ROL =>
-               Operations.Shift_Or_Rotate_Left (Proc, Mem);
+            when ASL | LSR | ROL | ROR =>
+               Operations.Shift_Or_Rotate (Proc, Mem);
             when AND_I | EOR | ORA =>
                Operations.Logic_Mem_With_A (Proc, Mem);
             when BCC | BCS | BEQ | BMI |

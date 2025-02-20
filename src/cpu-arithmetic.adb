@@ -18,10 +18,34 @@ package body Cpu.Arithmetic is
              (not S_Val_1 and not S_Val_2 and not S_Result);
    end Is_Overflown;
 
+   procedure Shift_Or_Rotate_Right
+     (Value        :     Data_Types.T_Byte;
+      Carry_Before :     Boolean;
+      Is_Rotate    :     Boolean;
+      Result       : out Data_Types.T_Byte;
+      Carry_After  : out Boolean;
+      Negative     : out Boolean;
+      Zero         : out Boolean)
+   is
+      use type Data_Types.T_Byte;
+      Bit_7_After : Data_Types.T_Byte := 0;
+   begin
+      if Is_Rotate and then Carry_Before then
+         --  ROR puts the Carry into the
+         --  bit 7 of the result.
+         --  LSR puts zero.
+         Bit_7_After := 2#10000000#;
+      end if;
+      Result := (Value / 2#10#) or Bit_7_After;
+      Carry_After := Bit_Test.Bit_X_Is_Set (Value, 0);
+      Negative := Bit_Test.Bit_X_Is_Set (Result, 7);
+      Zero := Data_Types.Is_Zero (Result);
+   end Shift_Or_Rotate_Right;
+
    procedure Shift_Or_Rotate_Left
-     (Value        :   Data_Types.T_Byte;
-      Carry_Before :   Boolean;
-      Is_Rotate    :   Boolean;
+     (Value        :     Data_Types.T_Byte;
+      Carry_Before :     Boolean;
+      Is_Rotate    :     Boolean;
       Result       : out Data_Types.T_Byte;
       Carry_After  : out Boolean;
       Negative     : out Boolean;

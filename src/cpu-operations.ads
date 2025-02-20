@@ -50,7 +50,7 @@ private package Cpu.Operations is
    procedure Set_SR
      (Proc : in out T_Cpu);
 
-   procedure Shift_Or_Rotate_Left
+   procedure Shift_Or_Rotate
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory);
 
