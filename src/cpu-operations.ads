@@ -47,6 +47,16 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
+   procedure Push
+     (Proc       : in out T_Cpu;
+      Mem        : in out Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address);
+
+   procedure Pull
+     (Proc       : in out T_Cpu;
+      Mem        : in out Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address);
+
    procedure Set_SR
      (Proc : in out T_Cpu);
 

@@ -223,6 +223,16 @@ package body Cpu.Data_Access is
       return Fetch_Byte (Where_Is_Byte, Mem, Registers);
    end Fetch_Byte;
 
+   function SP_To_Location
+     (SP         : Data_Types.T_Byte;
+      Stack_Page : Data_Types.T_Address)
+   return T_Location
+   is
+      use type Data_Types.T_Address;
+   begin
+      return (L_MEMORY, Stack_Page + SP);
+   end SP_To_Location;
+
    procedure Store_Byte
      (Location  :        T_Location;
       Mem       : in out Memory.T_Memory;

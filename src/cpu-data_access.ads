@@ -44,6 +44,11 @@ private package Cpu.Data_Access is
       Registers       : T_Registers)
      return Data_Types.T_Byte;
 
+   function SP_To_Location
+     (SP         : Data_Types.T_Byte;
+      Stack_Page : Data_Types.T_Address)
+   return T_Location;
+
    procedure Store_Byte
      (Location  :        T_Location;
       Mem       : in out Memory.T_Memory;

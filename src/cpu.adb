@@ -33,9 +33,6 @@ package body Cpu is
     ABSOLUTE_X  => 3,
     ABSOLUTE_Y  => 3);
 
-   function SP_To_Address (SP : Data_Types.T_Byte)
-   return Data_Types.T_Address is (Stack_Page + SP);
-
    function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
      return T_Instruction is separate;
 
@@ -96,6 +93,10 @@ package body Cpu is
                Operations.Load_Value (Proc, Mem);
             when INC | INX | INY =>
                Operations.Increment (Proc, Mem);
+            when PHA =>
+               Operations.Push (Proc, Mem, Stack_Page);
+            when PLA =>
+               Operations.Pull (Proc, Mem, Stack_Page);
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Mem);
             when SBC =>

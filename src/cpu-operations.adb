@@ -84,6 +84,48 @@ package body Cpu.Operations is
       end if;
    end Branch;
 
+   procedure Pull
+     (Proc       : in out T_Cpu;
+      Mem        : in out Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
+      Where_From : Data_Access.T_Location;
+   begin
+      Proc.Registers.SP
+        := Proc.Registers.SP + Data_Types.One_Byte;
+      Where_From
+        := Data_Access.SP_To_Location
+            (Proc.Registers.SP, Stack_Page);
+      Proc.Registers.A :=
+         Data_Access.Fetch_Byte
+           (Location  => Where_From,
+            Mem       => Mem,
+            Registers => Proc.Registers);
+      Set_N_And_Z (Value    => Proc.Registers.A,
+                   Negative => Proc.Registers.SR.N,
+                   Zero     => Proc.Registers.SR.Z);
+   end Pull;
+
+   procedure Push
+     (Proc       : in out T_Cpu;
+      Mem        : in out Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
+      Where_To : constant Data_Access.T_Location
+        := Data_Access.SP_To_Location
+            (Proc.Registers.SP, Stack_Page);
+   begin
+      Data_Access.Store_Byte
+        (Location  => Where_To,
+         Mem       => Mem,
+         Registers => Proc.Registers,
+         Value     => Proc.Registers.A);
+      Proc.Registers.SP
+        := Proc.Registers.SP - Data_Types.One_Byte;
+   end Push;
+
    procedure Clear_SR
      (Proc : in out T_Cpu) is
    begin
