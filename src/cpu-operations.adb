@@ -155,6 +155,7 @@ package body Cpu.Operations is
       Mem        :        Memory.T_Memory;
       Stack_Page :        Data_Types.T_Address)
    is
+      use type Data_Types.T_Address;
       Tmp_PC : Data_Types.T_Address;
    begin
       Data_Access.Pull_Address
@@ -162,7 +163,7 @@ package body Cpu.Operations is
          Registers  => Proc.Registers,
          Value      => Tmp_PC,
          Stack_Page => Stack_Page);
-      Proc.Registers.PC := Tmp_PC;
+      Proc.Registers.PC := Tmp_PC + Data_Types.One_Byte;
    end Return_From_Sub;
 
    procedure Clear_SR
