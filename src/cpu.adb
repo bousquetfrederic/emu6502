@@ -95,6 +95,8 @@ package body Cpu is
                Operations.Increment (Proc, Mem);
             when JMP | JSR =>
                Operations.Jump (Proc, Mem, Stack_Page);
+            when NOP =>
+               null;
             when PHA | PHP =>
                Operations.Push (Proc, Mem, Stack_Page);
             when PLA | PLP =>
