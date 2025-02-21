@@ -243,11 +243,11 @@ package body Cpu.Data_Access is
    begin
       Pull_Byte (Mem        => Mem,
                  Registers  => Registers,
-                 Value      => Value_As_Word.High,
+                 Value      => Value_As_Word.Low,
                  Stack_Page => Stack_Page);
       Pull_Byte (Mem        => Mem,
                  Registers  => Registers,
-                 Value      => Value_As_Word.Low,
+                 Value      => Value_As_Word.High,
                  Stack_Page => Stack_Page);
       Value := Data_Types.Word_To_Address (Value_As_Word);
    end Pull_Address;
@@ -285,12 +285,12 @@ package body Cpu.Data_Access is
       Push_Byte
         (Mem        => Mem,
          Registers  => Registers,
-         Value      => Value_As_Word.Low,
+         Value      => Value_As_Word.High,
          Stack_Page => Stack_Page);
       Push_Byte
         (Mem        => Mem,
          Registers  => Registers,
-         Value      => Value_As_Word.High,
+         Value      => Value_As_Word.Low,
          Stack_Page => Stack_Page);
    end Push_Address;
 
