@@ -93,8 +93,8 @@ package body Cpu is
                Operations.Load_Value (Proc, Mem);
             when INC | INX | INY =>
                Operations.Increment (Proc, Mem);
-            when JMP =>
-               Operations.Jump (Proc, Mem);
+            when JMP | JSR =>
+               Operations.Jump (Proc, Mem, Stack_Page);
             when PHA | PHP =>
                Operations.Push (Proc, Mem, Stack_Page);
             when PLA | PLP =>

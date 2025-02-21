@@ -233,6 +233,87 @@ package body Cpu.Data_Access is
       return (L_MEMORY, Stack_Page + SP);
    end SP_To_Location;
 
+   procedure Pull_Address
+     (Mem        :        Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :    out Data_Types.T_Address;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      Value_As_Word : Data_Types.T_Word;
+   begin
+      Pull_Byte (Mem        => Mem,
+                 Registers  => Registers,
+                 Value      => Value_As_Word.Low,
+                 Stack_Page => Stack_Page);
+      Pull_Byte (Mem        => Mem,
+                 Registers  => Registers,
+                 Value      => Value_As_Word.High,
+                 Stack_Page => Stack_Page);
+      Value := Data_Types.Word_To_Address (Value_As_Word);
+   end Pull_Address;
+
+   procedure Pull_Byte
+     (Mem        :        Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :    out Data_Types.T_Byte;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
+      Where_From : Data_Access.T_Location;
+   begin
+      Registers.SP
+        := Registers.SP + Data_Types.One_Byte;
+      Where_From
+        := SP_To_Location
+            (Registers.SP, Stack_Page);
+      Value :=
+         Fetch_Byte
+           (Location  => Where_From,
+            Mem       => Mem,
+            Registers => Registers);
+   end Pull_Byte;
+
+   procedure Push_Address
+     (Mem        : in out Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :        Data_Types.T_Address;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      Value_As_Word : constant Data_Types.T_Word
+         := Data_Types.Address_To_Word (Value);
+   begin
+      Push_Byte
+        (Mem        => Mem,
+         Registers  => Registers,
+         Value      => Value_As_Word.Low,
+         Stack_Page => Stack_Page);
+      Push_Byte
+        (Mem        => Mem,
+         Registers  => Registers,
+         Value      => Value_As_Word.High,
+         Stack_Page => Stack_Page);
+   end Push_Address;
+
+   procedure Push_Byte
+     (Mem        : in out Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :        Data_Types.T_Byte;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
+      Where_To : constant Data_Access.T_Location
+        := Data_Access.SP_To_Location
+            (Registers.SP, Stack_Page);
+   begin
+      Store_Byte
+        (Location  => Where_To,
+         Mem       => Mem,
+         Registers => Registers,
+         Value     => Value);
+      Registers.SP
+        := Registers.SP - Data_Types.One_Byte;
+   end Push_Byte;
+
    procedure Store_Byte
      (Location  :        T_Location;
       Mem       : in out Memory.T_Memory;

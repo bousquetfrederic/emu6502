@@ -36,8 +36,9 @@ private package Cpu.Operations is
       Mem  : in out Memory.T_Memory);
 
    procedure Jump
-     (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory);
+     (Proc       : in out T_Cpu;
+      Mem        : in out Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address);
 
    procedure Load_Value
      (Proc : in out T_Cpu;

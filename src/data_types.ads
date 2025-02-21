@@ -36,6 +36,10 @@ package Data_Types is
    function Word_To_Address (W : T_Word) return T_Address
      is (T_Address (W.High) * 256 + W.Low);
 
+   function Address_To_Word (A : T_Address) return T_Word
+     is ((Low  => T_Byte (A and 16#FF#),
+          High => T_Byte (A / 256)));
+
    --  Used to Add with Carry (Carry is bit 8)
    type T_9_Bits is mod 2**9;
    function "+" (L, R : T_Byte) return T_9_Bits

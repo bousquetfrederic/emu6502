@@ -44,6 +44,30 @@ private package Cpu.Data_Access is
       Registers       : T_Registers)
      return Data_Types.T_Byte;
 
+   procedure Pull_Address
+     (Mem        :        Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :    out Data_Types.T_Address;
+      Stack_Page :        Data_Types.T_Address);
+
+   procedure Pull_Byte
+     (Mem        :        Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :    out Data_Types.T_Byte;
+      Stack_Page :        Data_Types.T_Address);
+
+   procedure Push_Address
+     (Mem        : in out Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :        Data_Types.T_Address;
+      Stack_Page :        Data_Types.T_Address);
+
+   procedure Push_Byte
+     (Mem        : in out Memory.T_Memory;
+      Registers  : in out T_Registers;
+      Value      :        Data_Types.T_Byte;
+      Stack_Page :        Data_Types.T_Address);
+
    function SP_To_Location
      (SP         : Data_Types.T_Byte;
       Stack_Page : Data_Types.T_Address)

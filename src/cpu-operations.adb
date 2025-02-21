@@ -90,20 +90,13 @@ package body Cpu.Operations is
       Mem        : in out Memory.T_Memory;
       Stack_Page :        Data_Types.T_Address)
    is
-      use type Data_Types.T_Byte;
-      Where_From : Data_Access.T_Location;
       Value : Data_Types.T_Byte;
    begin
-      Proc.Registers.SP
-        := Proc.Registers.SP + Data_Types.One_Byte;
-      Where_From
-        := Data_Access.SP_To_Location
-            (Proc.Registers.SP, Stack_Page);
-      Value :=
-         Data_Access.Fetch_Byte
-           (Location  => Where_From,
-            Mem       => Mem,
-            Registers => Proc.Registers);
+      Data_Access.Pull_Byte
+        (Mem        => Mem,
+         Registers  => Proc.Registers,
+         Value      => Value,
+         Stack_Page => Stack_Page);
       case Proc.Current_Instruction.Instruction_Type is
          when PLA =>
             Proc.Registers.A := Value;
@@ -138,9 +131,6 @@ package body Cpu.Operations is
       Stack_Page :        Data_Types.T_Address)
    is
       use type Data_Types.T_Byte;
-      Where_To : constant Data_Access.T_Location
-        := Data_Access.SP_To_Location
-            (Proc.Registers.SP, Stack_Page);
       Value : Data_Types.T_Byte;
    begin
       case Proc.Current_Instruction.Instruction_Type is
@@ -153,13 +143,11 @@ package body Cpu.Operations is
          when others =>
             raise Cpu_Internal_Wrong_Operation;
       end case;
-      Data_Access.Store_Byte
-        (Location  => Where_To,
-         Mem       => Mem,
-         Registers => Proc.Registers,
-         Value     => Value);
-      Proc.Registers.SP
-        := Proc.Registers.SP - Data_Types.One_Byte;
+      Data_Access.Push_Byte
+        (Mem        => Mem,
+         Registers  => Proc.Registers,
+         Value      => Value,
+         Stack_Page => Stack_Page);
    end Push;
 
    procedure Clear_SR
@@ -372,9 +360,19 @@ package body Cpu.Operations is
          Zero     => Proc.Registers.SR.Z);
    end Increment;
 
-   procedure Jump (Proc : in out T_Cpu;
-                   Mem :        Memory.T_Memory) is
+   procedure Jump (Proc       : in out T_Cpu;
+                   Mem        : in out Memory.T_Memory;
+                   Stack_Page : Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
    begin
+      if Proc.Current_Instruction.Instruction_Type = JSR then
+         Data_Access.Push_Address
+           (Mem        => Mem,
+            Registers  => Proc.Registers,
+            Value      => Proc.Registers.PC + 2 * Data_Types.One_Byte,
+            Stack_Page => Stack_Page);
+      end if;
       Proc.Registers.PC :=
         Data_Access.Fetch_Address
          (Addressing_Type => Proc.Current_Instruction.Addressing,
