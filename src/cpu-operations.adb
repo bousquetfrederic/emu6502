@@ -150,6 +150,21 @@ package body Cpu.Operations is
          Stack_Page => Stack_Page);
    end Push;
 
+   procedure Return_From_Sub
+     (Proc       : in out T_Cpu;
+      Mem        :        Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      Tmp_PC : Data_Types.T_Address;
+   begin
+      Data_Access.Pull_Address
+        (Mem        => Mem,
+         Registers  => Proc.Registers,
+         Value      => Tmp_PC,
+         Stack_Page => Stack_Page);
+      Proc.Registers.PC := Tmp_PC;
+   end Return_From_Sub;
+
    procedure Clear_SR
      (Proc : in out T_Cpu) is
    begin

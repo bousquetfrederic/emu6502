@@ -101,6 +101,8 @@ package body Cpu is
                Operations.Push (Proc, Mem, Stack_Page);
             when PLA | PLP =>
                Operations.Pull (Proc, Mem, Stack_Page);
+            when RTS =>
+               Operations.Return_From_Sub (Proc, Mem, Stack_Page);
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Mem);
             when SBC =>

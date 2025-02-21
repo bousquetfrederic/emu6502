@@ -58,6 +58,11 @@ private package Cpu.Operations is
       Mem        : in out Memory.T_Memory;
       Stack_Page :        Data_Types.T_Address);
 
+   procedure Return_From_Sub
+     (Proc       : in out T_Cpu;
+      Mem        :        Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address);
+
    procedure Set_SR
      (Proc : in out T_Cpu);
 
