@@ -3,6 +3,7 @@ with Cpu.Arithmetic;
 with Cpu.Bit_Test;
 with Cpu.Data_Access;
 with Cpu.Logging;
+with Cpu.Status_Register;
 
 package body Cpu.Operations is
 
@@ -91,20 +92,44 @@ package body Cpu.Operations is
    is
       use type Data_Types.T_Byte;
       Where_From : Data_Access.T_Location;
+      Value : Data_Types.T_Byte;
    begin
       Proc.Registers.SP
         := Proc.Registers.SP + Data_Types.One_Byte;
       Where_From
         := Data_Access.SP_To_Location
             (Proc.Registers.SP, Stack_Page);
-      Proc.Registers.A :=
+      Value :=
          Data_Access.Fetch_Byte
            (Location  => Where_From,
             Mem       => Mem,
             Registers => Proc.Registers);
-      Set_N_And_Z (Value    => Proc.Registers.A,
-                   Negative => Proc.Registers.SR.N,
-                   Zero     => Proc.Registers.SR.Z);
+      case Proc.Current_Instruction.Instruction_Type is
+         when PLA =>
+            Proc.Registers.A := Value;
+            Set_N_And_Z (Value    => Proc.Registers.A,
+                         Negative => Proc.Registers.SR.N,
+                         Zero     => Proc.Registers.SR.Z);
+         when PLP =>
+            --  Keep Break flag and bit 5
+            --  Pull the rest
+            declare
+               Tmp_SR : constant T_SR :=
+                 Status_Register.Byte_As_SR (Value);
+            begin
+               Proc.Registers.SR :=
+                 (C => Tmp_SR.C,
+                  Z => Tmp_SR.Z,
+                  I => Tmp_SR.I,
+                  D => Tmp_SR.D,
+                  B => Proc.Registers.SR.B,
+                  U => Proc.Registers.SR.U,
+                  V => Tmp_SR.V,
+                  N => Tmp_SR.N);
+            end;
+         when others =>
+            raise Cpu_Internal_Wrong_Operation;
+      end case;
    end Pull;
 
    procedure Push
@@ -116,12 +141,23 @@ package body Cpu.Operations is
       Where_To : constant Data_Access.T_Location
         := Data_Access.SP_To_Location
             (Proc.Registers.SP, Stack_Page);
+      Value : Data_Types.T_Byte;
    begin
+      case Proc.Current_Instruction.Instruction_Type is
+         when PHA =>
+            Value := Proc.Registers.A;
+         when PHP =>
+            Value := Status_Register.SR_As_Byte
+                      (Proc.Registers.SR)
+                     or 2#00010000#;  --  Break flag
+         when others =>
+            raise Cpu_Internal_Wrong_Operation;
+      end case;
       Data_Access.Store_Byte
         (Location  => Where_To,
          Mem       => Mem,
          Registers => Proc.Registers,
-         Value     => Proc.Registers.A);
+         Value     => Value);
       Proc.Registers.SP
         := Proc.Registers.SP - Data_Types.One_Byte;
    end Push;

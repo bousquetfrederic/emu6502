@@ -93,9 +93,9 @@ package body Cpu is
                Operations.Load_Value (Proc, Mem);
             when INC | INX | INY =>
                Operations.Increment (Proc, Mem);
-            when PHA =>
+            when PHA | PHP =>
                Operations.Push (Proc, Mem, Stack_Page);
-            when PLA =>
+            when PLA | PLP =>
                Operations.Pull (Proc, Mem, Stack_Page);
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Mem);

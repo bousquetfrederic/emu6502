@@ -22,6 +22,22 @@ package body Cpu.Status_Register is
       end if;
    end Not_C_As_Byte;
 
+   function Byte_As_SR (B : Data_Types.T_Byte)
+     return T_SR
+   is
+      use type Data_Types.T_Byte;
+   begin
+      return
+        (C => (B and 2#1#) /= 0,
+         Z => (B and 2#10#) /= 0,
+         I => (B and 2#100#) /= 0,
+         D => (B and 2#1000#) /= 0,
+         B => (B and 2#10000#) /= 0,
+         U => (B and 2#100000#) /= 0,
+         V => (B and 2#1000000#) /= 0,
+         N => (B and 2#10000000#) /= 0);
+   end Byte_As_SR;
+
    function SR_As_Byte (SR : T_SR)
      return Data_Types.T_Byte
    is
