@@ -72,4 +72,7 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  :        Memory.T_Memory);
 
+   procedure Transfer
+     (Proc : in out T_Cpu);
+
 end Cpu.Operations;

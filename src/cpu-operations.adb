@@ -487,4 +487,48 @@ package body Cpu.Operations is
          Zero     => Proc.Registers.SR.Z);
    end Logic_Mem_With_A;
 
+   procedure Transfer
+     (Proc : in out T_Cpu)
+   is
+   begin
+      case Proc.Current_Instruction.Instruction_Type is
+         when TAX =>
+            Proc.Registers.X := Proc.Registers.A;
+            Set_N_And_Z
+              (Value    => Proc.Registers.X,
+               Negative => Proc.Registers.SR.N,
+               Zero     => Proc.Registers.SR.Z);
+         when TAY =>
+            Proc.Registers.Y := Proc.Registers.A;
+            Set_N_And_Z
+              (Value    => Proc.Registers.Y,
+               Negative => Proc.Registers.SR.N,
+               Zero     => Proc.Registers.SR.Z);
+         when TSX =>
+            Proc.Registers.X := Proc.Registers.SP;
+            Set_N_And_Z
+              (Value    => Proc.Registers.X,
+               Negative => Proc.Registers.SR.N,
+               Zero     => Proc.Registers.SR.Z);
+         when TXA =>
+            Proc.Registers.A := Proc.Registers.X;
+            Set_N_And_Z
+              (Value    => Proc.Registers.A,
+               Negative => Proc.Registers.SR.N,
+               Zero     => Proc.Registers.SR.Z);
+         when TXS =>
+            Proc.Registers.SP := Proc.Registers.X;
+         when TYA =>
+            Proc.Registers.A := Proc.Registers.Y;
+            Set_N_And_Z
+              (Value    => Proc.Registers.A,
+               Negative => Proc.Registers.SR.N,
+               Zero     => Proc.Registers.SR.Z);
+         when others =>
+            raise Cpu_Internal_Wrong_Operation
+              with Proc.Current_Instruction.Instruction_Type'Image;
+      end case;
+
+   end Transfer;
+
 end Cpu.Operations;

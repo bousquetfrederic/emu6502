@@ -93,6 +93,8 @@ package body Cpu is
                Operations.Load_Value (Proc, Mem);
             when INC | INX | INY =>
                Operations.Increment (Proc, Mem);
+            when JMP =>
+               Operations.Jump (Proc, Mem);
             when PHA | PHP =>
                Operations.Push (Proc, Mem, Stack_Page);
             when PLA | PLP =>
@@ -103,8 +105,8 @@ package body Cpu is
                Operations.Substract_with_Carry (Proc, Mem);
             when SEC | SED | SEI =>
                Operations.Set_SR (Proc);
-            when JMP =>
-               Operations.Jump (Proc, Mem);
+            when TAX | TAY | TSX | TXA | TXS | TYA =>
+               Operations.Transfer (Proc);
             when others =>
                raise Invalid_Instruction;
          end case;
