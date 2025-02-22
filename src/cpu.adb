@@ -6,6 +6,9 @@ use type Data_Types.T_Address;
 
 package body Cpu is
 
+   function Clock_Counter (Proc : T_Cpu) return Natural
+   is (Natural (Proc.Clock_Counter));
+
    Stack_Page : constant Data_Types.T_Address := 16#100#;
 
    Reset_SR : constant T_SR :=
@@ -36,6 +39,16 @@ package body Cpu is
    function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
      return T_Instruction is separate;
 
+   procedure Interrupt (Proc     : in out T_Cpu;
+                        Maskable :        Boolean) is
+   begin
+      if Maskable then
+         Proc.Interrupt := IRQ;
+      else
+         Proc.Interrupt := NMI;
+      end if;
+   end Interrupt;
+
    procedure Reset (Proc : out T_Cpu) is
    begin
       Proc.Registers.SR := Reset_SR;
@@ -44,6 +57,7 @@ package body Cpu is
       Proc.Registers.A  := 16#00#;
       Proc.Registers.X  := 16#00#;
       Proc.Registers.Y  := 16#00#;
+      Proc.Clock_Counter := 0;
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
@@ -112,26 +126,46 @@ package body Cpu is
             when TAX | TAY | TSX | TXA | TXS | TYA =>
                Operations.Transfer (Proc);
             when others =>
-               raise Invalid_Instruction;
+               raise Invalid_Instruction
+                 with Proc.Current_Instruction.Instruction_Type'Image;
          end case;
          --  Now store the next instruction and finish the tick
          --  If there is still a cycle left, it means an
          --  instruction was added in the processing above
          --  (RESET adds a JMP), so don't do anything
          if Proc.Current_Instruction.Cycles = 0 then
-            --  Move the PC to the next instruction
-            --  unless it was changed by the current
-            --  instruction (exemple: JMP)
-            if Proc.Registers.PC = PC_Before_Tick then
-               Proc.Registers.PC := Proc.Registers.PC
-                 + To_Next_Instruction
-                     (Proc.Current_Instruction.Addressing);
+            --  If there was an interrupt during the
+            --  processing of the instruction,
+            --  now perform the interrupt.Mem
+            if Proc.Interrupt = NMI then
+               Proc.Interrupt := NONE;
+               Operations.Change_Instruction
+                 (Proc, (NMI, IMPLIED, 7));
+            elsif Proc.Interrupt = IRQ
+                  and then not Proc.Registers.SR.I
+            then
+               Proc.Interrupt := NONE;
+               Operations.Change_Instruction
+                 (Proc, (IRQ, IMPLIED, 7));
+            else
+               --  No interrupt occured during last instruction,
+               --  but perhaps an IRQ was masked, so we need to
+               --  clear it.
+               Proc.Interrupt := NONE;
+               --  Move the PC to the next instruction
+               --  unless it was changed by the current
+               --  instruction (exemple: JMP)
+               if Proc.Registers.PC = PC_Before_Tick then
+                  Proc.Registers.PC := Proc.Registers.PC
+                    + To_Next_Instruction
+                        (Proc.Current_Instruction.Addressing);
+               end if;
+               --  Fetch the new instruction
+               Operations.Change_Instruction
+                 (Proc,
+                  Instruction_From_OP_Code
+                    (Memory.Read_Byte (Mem, Proc.Registers.PC)));
             end if;
-            --  Fetch the new instruction
-            Operations.Change_Instruction
-              (Proc,
-               Instruction_From_OP_Code
-                (Memory.Read_Byte (Mem, Proc.Registers.PC)));
          end if;
       end if;
    end Tick;

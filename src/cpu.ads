@@ -9,6 +9,11 @@ package Cpu is
    Invalid_Instruction : exception;
    Cpu_Was_Killed      : exception;
 
+   function Clock_Counter (Proc : T_Cpu) return Natural;
+
+   procedure Interrupt (Proc     : in out T_Cpu;
+                        Maskable :        Boolean);
+
    procedure Reset (Proc : out T_Cpu);
 
    procedure Tick (Proc : in out T_Cpu;
@@ -76,6 +81,8 @@ private
    (INVALID,
     KILL,
     RESET,
+    IRQ,
+    NMI,
     BRANCH,
     ADC, AND_I, ASL,
     BCC, BCS, BEQ, BIT, BMI, BNE, BPL, BRK, BVC, BVS,
@@ -98,12 +105,15 @@ private
       Cycles           : T_Cycle_Number;
    end record;
 
+   type T_Interrupt is (NONE, IRQ, NMI);
+
    type T_Cpu is
    record
       Registers : T_Registers;
       Clock_Counter : T_Clock_Counter := 0;
       Current_Instruction : T_Instruction
         := (RESET, NONE, 7);
+      Interrupt : T_Interrupt := NONE;
    end record;
 
 end Cpu;

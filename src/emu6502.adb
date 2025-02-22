@@ -24,6 +24,10 @@ begin
    loop
       begin
          Cpu.Tick (MyCPU, MyMem);
+         if Cpu.Clock_Counter (MyCPU) = 143
+         then
+            Cpu.Interrupt (MyCPU, False);
+         end if;
       exception
          when Cpu.Cpu_Was_Killed =>
             exit;
