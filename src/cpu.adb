@@ -87,9 +87,9 @@ package body Cpu is
                --  PC has already been changed
                null;
             when IRQ =>
-               Operations.Interrupt (Proc, Mem, 16#FFFA#, Stack_Page);
-            when NMI =>
                Operations.Interrupt (Proc, Mem, 16#FFFE#, Stack_Page);
+            when NMI =>
+               Operations.Interrupt (Proc, Mem, 16#FFFA#, Stack_Page);
             when ADC =>
                Operations.Add_With_Carry (Proc, Mem);
             when ASL | LSR | ROL | ROR =>
@@ -101,6 +101,8 @@ package body Cpu is
                Operations.Branch (Proc, Mem);
             when BIT =>
                Operations.Bit_Mem_With_A (Proc, Mem);
+            when BRK =>
+               Operations.Interrupt (Proc, Mem, 16#FFFE# , Stack_Page);
             when CLC | CLD | CLI | CLV =>
                Operations.Clear_SR (Proc);
             when CMP | CPX | CPY =>

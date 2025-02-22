@@ -582,7 +582,15 @@ package body Cpu.Operations is
                         Stack_Page :        Data_Types.T_Address)
    is
       use type Data_Types.T_Byte;
+      PC_To_Push : Data_Types.T_Address;
    begin
+      --  BRK pushes PC+2 (extra byte of space after the BRK)
+      if Proc.Current_Instruction.Instruction_Type = BRK
+      then
+         PC_To_Push := Proc.Registers.PC + 2 * Data_Types.One_Byte;
+      else
+         PC_To_Push := Proc.Registers.PC;
+      end if;
       --  Maskable interrupt do nothing if I bit is set
       if Proc.Current_Instruction.Instruction_Type /= IRQ
          or else not Proc.Registers.SR.I
@@ -590,12 +598,13 @@ package body Cpu.Operations is
          Data_Access.Push_Address
            (Mem        => Mem,
             Registers  => Proc.Registers,
-            Value      => Proc.Registers.PC,
+            Value      => PC_To_Push,
             Stack_Page => Stack_Page);
          Data_Access.Push_Byte
-           (Mem => Mem,
-            Registers => Proc.Registers,
-            Value => Status_Register.SR_As_Byte (Proc.Registers.SR),
+           (Mem        => Mem,
+            Registers  => Proc.Registers,
+            Value      => Status_Register.SR_As_Byte
+                            (Proc.Registers.SR),
             Stack_Page => Stack_Page);
          --  Create a JMP instruction which will look at $Vector
          --  for its address (so we artificially move PC to $Vector-1)
