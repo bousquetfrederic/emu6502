@@ -19,6 +19,13 @@ begin
    Memory.Write_Byte_To_ROM (MyMem, 16#FFFE#, 16#00#);
    Memory.Write_Byte_To_ROM (MyMem, 16#FFFF#, 16#E0#);
 
+   --  NMI does Push A, LDA EE, Pull A and return
+   Memory.Write_Byte_To_ROM (MyMem, 16#E000#, 16#48#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#E001#, 16#A9#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#E002#, 16#EE#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#E003#, 16#68#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#E004#, 16#40#);
+
    Open (MyProgram, In_File, "rom.txt");
 
    Memory.Load_Text_File_To_ROM

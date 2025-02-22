@@ -150,6 +150,37 @@ package body Cpu.Operations is
          Stack_Page => Stack_Page);
    end Push;
 
+   procedure Return_From_Interrupt
+     (Proc       : in out T_Cpu;
+      Mem        :        Memory.T_Memory;
+      Stack_Page :        Data_Types.T_Address)
+   is
+      Tmp_SR_As_Byte : Data_Types.T_Byte;
+      Tmp_SR         : T_SR;
+      Tmp_PC         : Data_Types.T_Address;
+   begin
+      Data_Access.Pull_Byte
+        (Mem        => Mem,
+         Registers  => Proc.Registers,
+         Value      => Tmp_SR_As_Byte,
+         Stack_Page => Stack_Page);
+      Proc.Registers.SR :=
+       (C => Tmp_SR.C,
+        Z => Tmp_SR.Z,
+        I => Tmp_SR.I,
+        D => Tmp_SR.D,
+        B => Proc.Registers.SR.B,
+        U => Proc.Registers.SR.U,
+        V => Tmp_SR.V,
+        N => Tmp_SR.N);
+      Data_Access.Pull_Address
+        (Mem => Mem,
+         Registers => Proc.Registers,
+         Value => Tmp_PC,
+         Stack_Page => Stack_Page);
+      Proc.Registers.PC := Tmp_PC;
+   end Return_From_Interrupt;
+
    procedure Return_From_Sub
      (Proc       : in out T_Cpu;
       Mem        :        Memory.T_Memory;
@@ -552,7 +583,7 @@ package body Cpu.Operations is
    is
       use type Data_Types.T_Byte;
    begin
-      -- Maskable interrupt do nothing if I bit is set
+      --  Maskable interrupt do nothing if I bit is set
       if Proc.Current_Instruction.Instruction_Type /= IRQ
          or else not Proc.Registers.SR.I
       then
@@ -564,7 +595,7 @@ package body Cpu.Operations is
          Data_Access.Push_Byte
            (Mem => Mem,
             Registers => Proc.Registers,
-            Value => Status_Register.SR_As_Byte (Proc.Registers.SR), 
+            Value => Status_Register.SR_As_Byte (Proc.Registers.SR),
             Stack_Page => Stack_Page);
          --  Create a JMP instruction which will look at $Vector
          --  for its address (so we artificially move PC to $Vector-1)

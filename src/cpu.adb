@@ -119,6 +119,8 @@ package body Cpu is
                Operations.Push (Proc, Mem, Stack_Page);
             when PLA | PLP =>
                Operations.Pull (Proc, Mem, Stack_Page);
+            when RTI =>
+               Operations.Return_From_Interrupt (Proc, Mem, Stack_Page);
             when RTS =>
                Operations.Return_From_Sub (Proc, Mem, Stack_Page);
             when STA | STX | STY =>
@@ -138,6 +140,14 @@ package body Cpu is
          --  instruction was added in the processing above
          --  (RESET adds a JMP), so don't do anything
          if Proc.Current_Instruction.Cycles = 0 then
+            --  Move the PC to the next instruction
+            --  unless it was changed by the current
+            --  instruction (exemple: JMP)
+            if Proc.Registers.PC = PC_Before_Tick then
+               Proc.Registers.PC := Proc.Registers.PC
+                  + To_Next_Instruction
+                     (Proc.Current_Instruction.Addressing);
+            end if;
             --  If there was an interrupt during the
             --  processing of the instruction,
             --  now perform the interrupt.
@@ -159,14 +169,6 @@ package body Cpu is
                --  but perhaps an IRQ was masked, so we need to
                --  clear it.
                Proc.Interrupt := NONE;
-               --  Move the PC to the next instruction
-               --  unless it was changed by the current
-               --  instruction (exemple: JMP)
-               if Proc.Registers.PC = PC_Before_Tick then
-                  Proc.Registers.PC := Proc.Registers.PC
-                    + To_Next_Instruction
-                        (Proc.Current_Instruction.Addressing);
-               end if;
                --  Fetch the new instruction
                Operations.Change_Instruction
                  (Proc,
