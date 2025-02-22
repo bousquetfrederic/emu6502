@@ -9,8 +9,15 @@ procedure Emu6502 is
    MyProgram : Ada.Text_IO.File_Type;
 
 begin
+   --  Reset Vector $C000
    Memory.Write_Byte_To_ROM (MyMem, 16#FFFC#, 16#00#);
    Memory.Write_Byte_To_ROM (MyMem, 16#FFFD#, 16#C0#);
+   --  IRQ Vector $D000
+   Memory.Write_Byte_To_ROM (MyMem, 16#FFFA#, 16#00#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#FFFB#, 16#D0#);
+   --  NMI Vector $E000
+   Memory.Write_Byte_To_ROM (MyMem, 16#FFFE#, 16#00#);
+   Memory.Write_Byte_To_ROM (MyMem, 16#FFFF#, 16#E0#);
 
    Open (MyProgram, In_File, "rom.txt");
 

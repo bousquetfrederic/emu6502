@@ -86,6 +86,10 @@ package body Cpu is
                --  after a Branch instruction.
                --  PC has already been changed
                null;
+            when IRQ =>
+               Operations.Interrupt (Proc, Mem, 16#FFFA#, Stack_Page);
+            when NMI =>
+               Operations.Interrupt (Proc, Mem, 16#FFFE#, Stack_Page);
             when ADC =>
                Operations.Add_With_Carry (Proc, Mem);
             when ASL | LSR | ROL | ROR =>
@@ -136,17 +140,20 @@ package body Cpu is
          if Proc.Current_Instruction.Cycles = 0 then
             --  If there was an interrupt during the
             --  processing of the instruction,
-            --  now perform the interrupt.Mem
+            --  now perform the interrupt.
+            --  (only 6 cycles because we'll add a
+            --  JMP with one cycle when processing
+            --  the interrupt)
             if Proc.Interrupt = NMI then
                Proc.Interrupt := NONE;
                Operations.Change_Instruction
-                 (Proc, (NMI, IMPLIED, 7));
+                 (Proc, (NMI, IMPLIED, 6));
             elsif Proc.Interrupt = IRQ
                   and then not Proc.Registers.SR.I
             then
                Proc.Interrupt := NONE;
                Operations.Change_Instruction
-                 (Proc, (IRQ, IMPLIED, 7));
+                 (Proc, (IRQ, IMPLIED, 6));
             else
                --  No interrupt occured during last instruction,
                --  but perhaps an IRQ was masked, so we need to

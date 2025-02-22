@@ -53,7 +53,8 @@ package body Memory is
    is
       use type Data_Types.T_Address;
       End_Address : constant Data_Types.T_Address
-        := Address + Data_Types.T_Address (Bytes'Length) - 1;
+        := Address + Data_Types.T_Address (Bytes'Length)
+           - Data_Types.One_Byte;
    begin
       --  If the last byte would end up outside of the limit
       --  of the RAM, we can't write this to RAM
@@ -75,7 +76,8 @@ package body Memory is
    is
       use type Data_Types.T_Address;
       End_Address : constant Data_Types.T_Address
-        := Address + Data_Types.T_Address (Bytes'Length) - 1;
+        := Address + Data_Types.T_Address (Bytes'Length)
+           - Data_Types.One_Byte;
    begin
       --  If Address is in RAM, Load_To_RAM should be used
       if Address in T_ROM_Address

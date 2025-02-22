@@ -44,6 +44,11 @@ private package Cpu.Data_Access is
       Registers       : T_Registers)
      return Data_Types.T_Byte;
 
+   function Get_Address_At_Address
+     (Mem     : Memory.T_Memory;
+      Address : Data_Types.T_Address)
+   return Data_Types.T_Address;
+
    procedure Pull_Address
      (Mem        :        Memory.T_Memory;
       Registers  : in out T_Registers;

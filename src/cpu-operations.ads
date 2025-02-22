@@ -35,6 +35,11 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Mem  : in out Memory.T_Memory);
 
+   procedure Interrupt (Proc       : in out T_Cpu;
+                        Mem        : in out Memory.T_Memory;
+                        Vector     :        Data_Types.T_Address;
+                        Stack_Page :        Data_Types.T_Address);
+
    procedure Jump
      (Proc       : in out T_Cpu;
       Mem        : in out Memory.T_Memory;

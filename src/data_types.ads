@@ -27,6 +27,8 @@ package Data_Types is
    --  Add a Byte to an Address, with Carry (FF+1 = 100)
    function "+" (L : T_Address; R : T_Byte) return T_Address
      is (L + T_Address (R));
+   function "-" (L : T_Address; R : T_Byte) return T_Address
+     is (L - T_Address (R));
 
    --  Add a signed byte to an Address
    --  for branching (relative addressing)

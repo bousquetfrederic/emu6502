@@ -545,4 +545,32 @@ package body Cpu.Operations is
 
    end Transfer;
 
+   procedure Interrupt (Proc       : in out T_Cpu;
+                        Mem        : in out Memory.T_Memory;
+                        Vector     :        Data_Types.T_Address;
+                        Stack_Page :        Data_Types.T_Address)
+   is
+      use type Data_Types.T_Byte;
+   begin
+      -- Maskable interrupt do nothing if I bit is set
+      if Proc.Current_Instruction.Instruction_Type /= IRQ
+         or else not Proc.Registers.SR.I
+      then
+         Data_Access.Push_Address
+           (Mem        => Mem,
+            Registers  => Proc.Registers,
+            Value      => Proc.Registers.PC,
+            Stack_Page => Stack_Page);
+         Data_Access.Push_Byte
+           (Mem => Mem,
+            Registers => Proc.Registers,
+            Value => Status_Register.SR_As_Byte (Proc.Registers.SR), 
+            Stack_Page => Stack_Page);
+         --  Create a JMP instruction which will look at $Vector
+         --  for its address (so we artificially move PC to $Vector-1)
+         Proc.Registers.PC := Vector - Data_Types.One_Byte;
+         Change_Instruction (Proc, (JMP, ABSOLUTE, 1));
+      end if;
+   end Interrupt;
+
 end Cpu.Operations;
