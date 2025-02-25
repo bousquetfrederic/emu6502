@@ -62,7 +62,7 @@ package body Cpu is
    end Reset;
 
    procedure Tick (Proc : in out T_Cpu;
-                   Mem  : in out Memory.T_Memory)
+                   Bus  : in out Data_Bus.T_Data_Bus)
    is
       PC_Before_Tick : constant Data_Types.T_Address
         := Proc.Registers.PC;
@@ -87,48 +87,48 @@ package body Cpu is
                --  PC has already been changed
                null;
             when IRQ =>
-               Operations.Interrupt (Proc, Mem, 16#FFFE#, Stack_Page);
+               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page);
             when NMI =>
-               Operations.Interrupt (Proc, Mem, 16#FFFA#, Stack_Page);
+               Operations.Interrupt (Proc, Bus, 16#FFFA#, Stack_Page);
             when ADC =>
-               Operations.Add_With_Carry (Proc, Mem);
+               Operations.Add_With_Carry (Proc, Bus);
             when ASL | LSR | ROL | ROR =>
-               Operations.Shift_Or_Rotate (Proc, Mem);
+               Operations.Shift_Or_Rotate (Proc, Bus);
             when AND_I | EOR | ORA =>
-               Operations.Logic_Mem_With_A (Proc, Mem);
+               Operations.Logic_Mem_With_A (Proc, Bus);
             when BCC | BCS | BEQ | BMI |
                  BNE | BPL | BVC | BVS =>
-               Operations.Branch (Proc, Mem);
+               Operations.Branch (Proc, Bus);
             when BIT =>
-               Operations.Bit_Mem_With_A (Proc, Mem);
+               Operations.Bit_Mem_With_A (Proc, Bus);
             when BRK =>
-               Operations.Interrupt (Proc, Mem, 16#FFFE# , Stack_Page);
+               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page);
             when CLC | CLD | CLI | CLV =>
                Operations.Clear_SR (Proc);
             when CMP | CPX | CPY =>
-               Operations.Compare (Proc, Mem);
+               Operations.Compare (Proc, Bus);
             when DEC | DEX | DEY =>
-               Operations.Decrement (Proc, Mem);
+               Operations.Decrement (Proc, Bus);
             when LDA | LDX | LDY =>
-               Operations.Load_Value (Proc, Mem);
+               Operations.Load_Value (Proc, Bus);
             when INC | INX | INY =>
-               Operations.Increment (Proc, Mem);
+               Operations.Increment (Proc, Bus);
             when JMP | JSR =>
-               Operations.Jump (Proc, Mem, Stack_Page);
+               Operations.Jump (Proc, Bus, Stack_Page);
             when NOP =>
                null;
             when PHA | PHP =>
-               Operations.Push (Proc, Mem, Stack_Page);
+               Operations.Push (Proc, Bus, Stack_Page);
             when PLA | PLP =>
-               Operations.Pull (Proc, Mem, Stack_Page);
+               Operations.Pull (Proc, Bus, Stack_Page);
             when RTI =>
-               Operations.Return_From_Interrupt (Proc, Mem, Stack_Page);
+               Operations.Return_From_Interrupt (Proc, Bus, Stack_Page);
             when RTS =>
-               Operations.Return_From_Sub (Proc, Mem, Stack_Page);
+               Operations.Return_From_Sub (Proc, Bus, Stack_Page);
             when STA | STX | STY =>
-               Operations.Store_Value (Proc, Mem);
+               Operations.Store_Value (Proc, Bus);
             when SBC =>
-               Operations.Substract_with_Carry (Proc, Mem);
+               Operations.Substract_with_Carry (Proc, Bus);
             when SEC | SED | SEI =>
                Operations.Set_SR (Proc);
             when TAX | TAY | TSX | TXA | TXS | TYA =>
@@ -175,7 +175,7 @@ package body Cpu is
                Operations.Change_Instruction
                  (Proc,
                   Instruction_From_OP_Code
-                    (Memory.Read_Byte (Mem, Proc.Registers.PC)));
+                    (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
             end if;
          end if;
       end if;

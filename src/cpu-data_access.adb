@@ -3,27 +3,27 @@ with Data_Types;
 package body Cpu.Data_Access is
 
    function Following_Byte
-     (Mem : Memory.T_Memory;
+     (Bus : Data_Bus.T_Data_Bus;
       PC  : Data_Types.T_Address)
      return Data_Types.T_Byte
    is
       use type Data_Types.T_Byte;
    begin
-      return Memory.Read_Byte
-        (Mem     => Mem,
-         Address => PC + Data_Types.One_Byte);
+      return Data_Bus.Read_Byte
+        (Bus      => Bus,
+         Address  => PC + Data_Types.One_Byte);
    end Following_Byte;
 
    function Following_Word
-     (Mem : Memory.T_Memory;
+     (Bus : Data_Bus.T_Data_Bus;
       PC  : Data_Types.T_Address)
      return Data_Types.T_Word
    is
       use type Data_Types.T_Byte;
       Tmp_Word : Data_Types.T_Word;
    begin
-      Tmp_Word.Low := Memory.Read_Byte (Mem, PC + Data_Types.One_Byte);
-      Tmp_Word.High := Memory.Read_Byte (Mem, PC + 2 * Data_Types.One_Byte);
+      Tmp_Word.Low := Data_Bus.Read_Byte (Bus, PC + Data_Types.One_Byte);
+      Tmp_Word.High := Data_Bus.Read_Byte (Bus, PC + 2 * Data_Types.One_Byte);
       return Tmp_Word;
    end Following_Word;
 
@@ -33,20 +33,20 @@ package body Cpu.Data_Access is
          ((Low => B, High => 16#00#)));
 
    function Get_Address_At_Address
-     (Mem     : Memory.T_Memory;
+     (Bus     : Data_Bus.T_Data_Bus;
       Address : Data_Types.T_Address)
    return Data_Types.T_Address is
       use type Data_Types.T_Byte;
       Tmp_Word : Data_Types.T_Word;
    begin
-      Tmp_Word.Low := Memory.Read_Byte (Mem, Address);
-      Tmp_Word.High := Memory.Read_Byte (Mem, Address + Data_Types.One_Byte);
+      Tmp_Word.Low := Data_Bus.Read_Byte (Bus, Address);
+      Tmp_Word.High := Data_Bus.Read_Byte (Bus, Address + Data_Types.One_Byte);
       return Data_Types.Word_To_Address (Tmp_Word);
    end Get_Address_At_Address;
 
    function Addressing_Points_To
      (Addressing_Type : T_Valid_Addressing_Types;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
    return T_Location is
       use all type Data_Types.T_Byte;
@@ -64,7 +64,7 @@ package body Cpu.Data_Access is
             return (L_Y, Where_To);
          when RELATIVE =>
             Where_To := Registers.PC
-              + Byte_To_Signed (Following_Byte (Mem, Registers.PC));
+              + Byte_To_Signed (Following_Byte (Bus, Registers.PC));
          when IMMEDIATE =>
             Where_To := Registers.PC + Data_Types.One_Byte;
          when ZERO_PAGE   =>
@@ -72,7 +72,7 @@ package body Cpu.Data_Access is
             --  (hi-byte is zero, address = $00LL)
             declare
                Where_In_ZP : constant Data_Types.T_Byte
-                 := Following_Byte (Mem, Registers.PC);
+                 := Following_Byte (Bus, Registers.PC);
             begin
                Where_To := Byte_To_Zero_Page (Where_In_ZP);
             end;
@@ -81,7 +81,7 @@ package body Cpu.Data_Access is
             --  effective address is address incremented by X without carry
             declare
                Where_In_ZP : constant Data_Types.T_Byte
-                 := Following_Byte (Mem, Registers.PC)
+                 := Following_Byte (Bus, Registers.PC)
                     + Registers.X;
             begin
                Where_To := Byte_To_Zero_Page (Where_In_ZP);
@@ -91,7 +91,7 @@ package body Cpu.Data_Access is
             --  effective address is address incremented by X without carry
             declare
                Where_In_ZP : constant Data_Types.T_Byte
-                 := Following_Byte (Mem, Registers.PC)
+                 := Following_Byte (Bus, Registers.PC)
                     + Registers.Y;
             begin
                Where_To := Byte_To_Zero_Page (Where_In_ZP);
@@ -102,23 +102,23 @@ package body Cpu.Data_Access is
             declare
                Where_Is_Address : constant Data_Types.T_Address
                  := Data_Types.Word_To_Address
-                   (Following_Word (Mem, Registers.PC));
+                   (Following_Word (Bus, Registers.PC));
             begin
                Where_To := Get_Address_At_Address
-                             (Mem, Where_Is_Address);
+                             (Bus, Where_Is_Address);
             end;
          when INDIRECT_X  =>
             --  operand is zeropage address;
             --  effective address is word in (ZP + X) without carry
             declare
                Where_In_ZP : constant Data_Types.T_Byte
-                 := Following_Byte (Mem, Registers.PC)
+                 := Following_Byte (Bus, Registers.PC)
                     + Registers.X;
                Where_Is_Address : constant Data_Types.T_Address
                  := Byte_To_Zero_Page (Where_In_ZP);
             begin
                Where_To := Get_Address_At_Address
-                             (Mem, Where_Is_Address);
+                             (Bus, Where_Is_Address);
             end;
          when INDIRECT_Y  =>
             --  operand is zeropage address;
@@ -127,24 +127,24 @@ package body Cpu.Data_Access is
             --         PAGE TRANSITION OCCURS
             declare
                Where_In_ZP : constant Data_Types.T_Byte
-                 := Following_Byte (Mem, Registers.PC);
+                 := Following_Byte (Bus, Registers.PC);
                Where_Is_Address : constant Data_Types.T_Address
                  := Byte_To_Zero_Page (Where_In_ZP);
             begin
                Where_To := Get_Address_At_Address
-                            (Mem, Where_Is_Address + Registers.Y);
+                            (Bus, Where_Is_Address + Registers.Y);
             end;
          when ABSOLUTE    =>
             --  operand is address
             Where_To := Data_Types.Word_To_Address
-                          (Following_Word (Mem, Registers.PC));
+                          (Following_Word (Bus, Registers.PC));
          when ABSOLUTE_X  =>
             --  operand is address;
             --  effective address is address incremented by X with carry
             --  TODO : NEED TO HANDLE THE EXTRA CYCLE IF
             --         PAGE TRANSITION OCCURS
             Where_To := Data_Types.Word_To_Address
-                          (Following_Word (Mem, Registers.PC))
+                          (Following_Word (Bus, Registers.PC))
                         + Registers.X;
          when ABSOLUTE_Y  =>
             --  operand is address;
@@ -152,7 +152,7 @@ package body Cpu.Data_Access is
             --  TODO : NEED TO HANDLE THE EXTRA CYCLE IF
             --         PAGE TRANSITION OCCURS
             Where_To := Data_Types.Word_To_Address
-                         (Following_Word (Mem, Registers.PC))
+                         (Following_Word (Bus, Registers.PC))
                         + Registers.Y;
       end case;
       return (L_MEMORY, Where_To);
@@ -172,14 +172,14 @@ package body Cpu.Data_Access is
    --  -------------------------------------------------------
    function Fetch_Address
      (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
      return Data_Types.T_Address
    is
       Where_Is_Address : constant T_Location
         := Addressing_Points_To
              (Addressing_Type => Addressing_Type,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Registers);
    begin
       if Where_Is_Address.Kind = L_ACCUMULATOR then
@@ -190,7 +190,7 @@ package body Cpu.Data_Access is
 
    function Fetch_Byte
      (Location  : T_Location;
-      Mem       : Memory.T_Memory;
+      Bus       : Data_Bus.T_Data_Bus;
       Registers : T_Registers)
    return Data_Types.T_Byte is
    begin
@@ -203,8 +203,8 @@ package body Cpu.Data_Access is
          when L_Y =>
             return Registers.Y;
          when L_MEMORY      =>
-            return Memory.Read_Byte
-               (Mem     => Mem,
+            return Data_Bus.Read_Byte
+               (Bus     => Bus,
                 Address => Location.Address
                );
       end case;
@@ -216,17 +216,17 @@ package body Cpu.Data_Access is
    --  -------------------------------------------------
    function Fetch_Byte
      (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
      return Data_Types.T_Byte
    is
       Where_Is_Byte : constant T_Location
         := Addressing_Points_To
              (Addressing_Type => Addressing_Type,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Registers);
    begin
-      return Fetch_Byte (Where_Is_Byte, Mem, Registers);
+      return Fetch_Byte (Where_Is_Byte, Bus, Registers);
    end Fetch_Byte;
 
    function SP_To_Location
@@ -240,18 +240,18 @@ package body Cpu.Data_Access is
    end SP_To_Location;
 
    procedure Pull_Address
-     (Mem        :        Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :    out Data_Types.T_Address;
       Stack_Page :        Data_Types.T_Address)
    is
       Value_As_Word : Data_Types.T_Word;
    begin
-      Pull_Byte (Mem        => Mem,
+      Pull_Byte (Bus        => Bus,
                  Registers  => Registers,
                  Value      => Value_As_Word.Low,
                  Stack_Page => Stack_Page);
-      Pull_Byte (Mem        => Mem,
+      Pull_Byte (Bus        => Bus,
                  Registers  => Registers,
                  Value      => Value_As_Word.High,
                  Stack_Page => Stack_Page);
@@ -259,7 +259,7 @@ package body Cpu.Data_Access is
    end Pull_Address;
 
    procedure Pull_Byte
-     (Mem        :        Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :    out Data_Types.T_Byte;
       Stack_Page :        Data_Types.T_Address)
@@ -275,12 +275,12 @@ package body Cpu.Data_Access is
       Value :=
          Fetch_Byte
            (Location  => Where_From,
-            Mem       => Mem,
+            Bus       => Bus,
             Registers => Registers);
    end Pull_Byte;
 
    procedure Push_Address
-     (Mem        : in out Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :        Data_Types.T_Address;
       Stack_Page :        Data_Types.T_Address)
@@ -289,19 +289,19 @@ package body Cpu.Data_Access is
          := Data_Types.Address_To_Word (Value);
    begin
       Push_Byte
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Registers,
          Value      => Value_As_Word.High,
          Stack_Page => Stack_Page);
       Push_Byte
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Registers,
          Value      => Value_As_Word.Low,
          Stack_Page => Stack_Page);
    end Push_Address;
 
    procedure Push_Byte
-     (Mem        : in out Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :        Data_Types.T_Byte;
       Stack_Page :        Data_Types.T_Address)
@@ -313,7 +313,7 @@ package body Cpu.Data_Access is
    begin
       Store_Byte
         (Location  => Where_To,
-         Mem       => Mem,
+         Bus       => Bus,
          Registers => Registers,
          Value     => Value);
       Registers.SP
@@ -322,7 +322,7 @@ package body Cpu.Data_Access is
 
    procedure Store_Byte
      (Location  :        T_Location;
-      Mem       : in out Memory.T_Memory;
+      Bus       :        Data_Bus.T_Data_Bus;
       Registers : in out T_Registers;
       Value     :        Data_Types.T_Byte)
    is
@@ -335,25 +335,25 @@ package body Cpu.Data_Access is
          when L_Y =>
             Registers.Y := Value;
          when L_MEMORY      =>
-            Memory.Write_Byte (Mem    => Mem,
-                              Address => Location.Address,
-                              Value   => Value);
+            Data_Bus.Write_Byte (Bus     => Bus,
+                                 Address => Location.Address,
+                                 Value   => Value);
       end case;
    end Store_Byte;
 
    procedure Store_Byte
      (Addressing_Type :        T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : in out Memory.T_Memory;
+      Bus             :        Data_Bus.T_Data_Bus;
       Registers       : in out T_Registers;
       Value           :        Data_Types.T_Byte)
    is
       Where_To : constant T_Location
         := Addressing_Points_To
              (Addressing_Type => Addressing_Type,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Registers);
    begin
-      Store_Byte (Where_To, Mem, Registers, Value);
+      Store_Byte (Where_To, Bus, Registers, Value);
    end Store_Byte;
 
 end Cpu.Data_Access;

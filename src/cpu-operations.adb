@@ -31,7 +31,7 @@ package body Cpu.Operations is
 
    procedure Branch
      (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
       use all type Data_Access.T_Location_Kind;
       Where_To  : Data_Access.T_Location;
@@ -61,7 +61,7 @@ package body Cpu.Operations is
       if Condition then
          Where_To := Data_Access.Addressing_Points_To
            (Addressing_Type => Proc.Current_Instruction.Addressing,
-            Mem             => Mem,
+            Bus             => Bus,
             Registers       => Proc.Registers);
          if Where_To.Kind = L_ACCUMULATOR
          then
@@ -87,13 +87,13 @@ package body Cpu.Operations is
 
    procedure Pull
      (Proc       : in out T_Cpu;
-      Mem        : in out Memory.T_Memory;
+      Bus        : in out Data_Bus.T_Data_Bus;
       Stack_Page :        Data_Types.T_Address)
    is
       Value : Data_Types.T_Byte;
    begin
       Data_Access.Pull_Byte
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Proc.Registers,
          Value      => Value,
          Stack_Page => Stack_Page);
@@ -127,7 +127,7 @@ package body Cpu.Operations is
 
    procedure Push
      (Proc       : in out T_Cpu;
-      Mem        : in out Memory.T_Memory;
+      Bus        : in out Data_Bus.T_Data_Bus;
       Stack_Page :        Data_Types.T_Address)
    is
       use type Data_Types.T_Byte;
@@ -144,7 +144,7 @@ package body Cpu.Operations is
             raise Cpu_Internal_Wrong_Operation;
       end case;
       Data_Access.Push_Byte
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Proc.Registers,
          Value      => Value,
          Stack_Page => Stack_Page);
@@ -152,7 +152,7 @@ package body Cpu.Operations is
 
    procedure Return_From_Interrupt
      (Proc       : in out T_Cpu;
-      Mem        :        Memory.T_Memory;
+      Bus        :        Data_Bus.T_Data_Bus;
       Stack_Page :        Data_Types.T_Address)
    is
       Tmp_SR_As_Byte : Data_Types.T_Byte;
@@ -160,7 +160,7 @@ package body Cpu.Operations is
       Tmp_PC         : Data_Types.T_Address;
    begin
       Data_Access.Pull_Byte
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Proc.Registers,
          Value      => Tmp_SR_As_Byte,
          Stack_Page => Stack_Page);
@@ -174,23 +174,23 @@ package body Cpu.Operations is
         V => Tmp_SR.V,
         N => Tmp_SR.N);
       Data_Access.Pull_Address
-        (Mem => Mem,
-         Registers => Proc.Registers,
-         Value => Tmp_PC,
+        (Bus        => Bus,
+         Registers  => Proc.Registers,
+         Value      => Tmp_PC,
          Stack_Page => Stack_Page);
       Proc.Registers.PC := Tmp_PC;
    end Return_From_Interrupt;
 
    procedure Return_From_Sub
      (Proc       : in out T_Cpu;
-      Mem        :        Memory.T_Memory;
+      Bus        :        Data_Bus.T_Data_Bus;
       Stack_Page :        Data_Types.T_Address)
    is
       use type Data_Types.T_Address;
       Tmp_PC : Data_Types.T_Address;
    begin
       Data_Access.Pull_Address
-        (Mem        => Mem,
+        (Bus        => Bus,
          Registers  => Proc.Registers,
          Value      => Tmp_PC,
          Stack_Page => Stack_Page);
@@ -231,12 +231,12 @@ package body Cpu.Operations is
 
    procedure Shift_Or_Rotate
      (Proc : in out T_Cpu;
-      Mem  : in out Memory.T_Memory)
+      Bus  : in out Data_Bus.T_Data_Bus)
    is
       Where_Is_Data : constant Data_Access.T_Location
         := Data_Access.Addressing_Points_To
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
       Shifted_8_Bits : Data_Types.T_Byte;
    begin
@@ -246,7 +246,7 @@ package body Cpu.Operations is
              (Value        =>
               Data_Access.Fetch_Byte
                (Location  => Where_Is_Data,
-                Mem       => Mem,
+                Bus       => Bus,
                 Registers => Proc.Registers),
                Carry_Before => Proc.Registers.SR.C,
                Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROL,
@@ -259,7 +259,7 @@ package body Cpu.Operations is
              (Value        =>
               Data_Access.Fetch_Byte
                (Location  => Where_Is_Data,
-                Mem       => Mem,
+                Bus       => Bus,
                 Registers => Proc.Registers),
                Carry_Before => Proc.Registers.SR.C,
                Is_Rotate    => Proc.Current_Instruction.Instruction_Type = ROR,
@@ -273,14 +273,14 @@ package body Cpu.Operations is
       end case;
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
-         Mem       => Mem,
+         Bus       => Bus,
          Registers => Proc.Registers,
          Value     => Shifted_8_Bits);
    end Shift_Or_Rotate;
 
    procedure Substract_with_Carry
      (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
    begin
       Arithmetic.Substract_With_Carry
@@ -288,7 +288,7 @@ package body Cpu.Operations is
          Value_2      =>
            Data_Access.Fetch_Byte
             (Addressing_Type => Proc.Current_Instruction.Addressing,
-             Mem             => Mem,
+             Bus             => Bus,
              Registers       => Proc.Registers),
          Carry_Before => Proc.Registers.SR.C,
          Result       => Proc.Registers.A,
@@ -300,7 +300,7 @@ package body Cpu.Operations is
 
    procedure Add_With_Carry
      (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
    begin
       Arithmetic.Add_With_Carry
@@ -308,7 +308,7 @@ package body Cpu.Operations is
          Value_2      =>
            Data_Access.Fetch_Byte
             (Addressing_Type => Proc.Current_Instruction.Addressing,
-             Mem             => Mem,
+             Bus             => Bus,
              Registers       => Proc.Registers),
          Carry_Before => Proc.Registers.SR.C,
          Result       => Proc.Registers.A,
@@ -320,7 +320,7 @@ package body Cpu.Operations is
 
    procedure Compare
      (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
       Register_Value : Data_Types.T_Byte;
       Dummy_Result   : Data_Types.T_Byte;
@@ -341,7 +341,7 @@ package body Cpu.Operations is
          Value_2      =>
            Data_Access.Fetch_Byte
             (Addressing_Type => Proc.Current_Instruction.Addressing,
-             Mem             => Mem,
+             Bus             => Bus,
              Registers       => Proc.Registers),
          Carry_Before => True,
          Result       => Dummy_Result,
@@ -353,24 +353,24 @@ package body Cpu.Operations is
 
    procedure Decrement
      (Proc : in out T_Cpu;
-      Mem  : in out Memory.T_Memory)
+      Bus  : in out Data_Bus.T_Data_Bus)
    is
       use type Data_Types.T_Byte;
       Where_Is_Data : constant Data_Access.T_Location
         := Data_Access.Addressing_Points_To
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
       Value : constant Data_Types.T_Byte
         := Data_Access.Fetch_Byte
             (Location  => Where_Is_Data,
-             Mem       => Mem,
+             Bus       => Bus,
              Registers => Proc.Registers)
            - Data_Types.One_Byte;
    begin
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
-         Mem       => Mem,
+         Bus       => Bus,
          Registers => Proc.Registers,
          Value     => Value);
       Set_N_And_Z
@@ -381,24 +381,24 @@ package body Cpu.Operations is
 
    procedure Increment
      (Proc : in out T_Cpu;
-      Mem  : in out Memory.T_Memory)
+      Bus  : in out Data_Bus.T_Data_Bus)
    is
       use type Data_Types.T_Byte;
       Where_Is_Data : constant Data_Access.T_Location
         := Data_Access.Addressing_Points_To
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
       Value : constant Data_Types.T_Byte
         := Data_Access.Fetch_Byte
             (Location  => Where_Is_Data,
-             Mem       => Mem,
+             Bus       => Bus,
              Registers => Proc.Registers)
            + Data_Types.One_Byte;
    begin
       Data_Access.Store_Byte
         (Location  => Where_Is_Data,
-         Mem       => Mem,
+         Bus       => Bus,
          Registers => Proc.Registers,
          Value     => Value);
       Set_N_And_Z
@@ -408,14 +408,14 @@ package body Cpu.Operations is
    end Increment;
 
    procedure Jump (Proc       : in out T_Cpu;
-                   Mem        : in out Memory.T_Memory;
+                   Bus        : in out Data_Bus.T_Data_Bus;
                    Stack_Page : Data_Types.T_Address)
    is
       use type Data_Types.T_Byte;
    begin
       if Proc.Current_Instruction.Instruction_Type = JSR then
          Data_Access.Push_Address
-           (Mem        => Mem,
+           (Bus        => Bus,
             Registers  => Proc.Registers,
             Value      => Proc.Registers.PC + 2 * Data_Types.One_Byte,
             Stack_Page => Stack_Page);
@@ -423,18 +423,18 @@ package body Cpu.Operations is
       Proc.Registers.PC :=
         Data_Access.Fetch_Address
          (Addressing_Type => Proc.Current_Instruction.Addressing,
-          Mem             => Mem,
+          Bus             => Bus,
           Registers       => Proc.Registers);
    end Jump;
 
    procedure Load_Value
      (Proc : in out T_Cpu;
-      Mem  :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
       Value : constant Data_Types.T_Byte
         := Data_Access.Fetch_Byte
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
    begin
       case Proc.Current_Instruction.Instruction_Type is
@@ -456,7 +456,7 @@ package body Cpu.Operations is
 
    procedure Store_Value
      (Proc : in out T_Cpu;
-      Mem : in out Memory.T_Memory)
+      Bus  : in out Data_Bus.T_Data_Bus)
    is
       Value : Data_Types.T_Byte;
    begin
@@ -473,14 +473,14 @@ package body Cpu.Operations is
       end case;
       Data_Access.Store_Byte
         (Addressing_Type => Proc.Current_Instruction.Addressing,
-         Mem             => Mem,
+         Bus             => Bus,
          Registers       => Proc.Registers,
          Value           => Value);
    end Store_Value;
 
    procedure Bit_Mem_With_A
      (Proc : in out T_Cpu;
-      Mem :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
       use type Data_Types.T_Byte;
       Value         : Data_Types.T_Byte;
@@ -488,7 +488,7 @@ package body Cpu.Operations is
       Byte_From_Mem : constant Data_Types.T_Byte
         := Data_Access.Fetch_Byte
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
    begin
       Value := Proc.Registers.A and Byte_From_Mem;
@@ -504,14 +504,14 @@ package body Cpu.Operations is
 
    procedure Logic_Mem_With_A
      (Proc : in out T_Cpu;
-      Mem :        Memory.T_Memory)
+      Bus  :        Data_Bus.T_Data_Bus)
    is
       use type Data_Types.T_Byte;
       Value : Data_Types.T_Byte;
       Byte_From_Mem  : constant Data_Types.T_Byte
         := Data_Access.Fetch_Byte
              (Addressing_Type => Proc.Current_Instruction.Addressing,
-              Mem             => Mem,
+              Bus             => Bus,
               Registers       => Proc.Registers);
    begin
       case Proc.Current_Instruction.Instruction_Type is
@@ -577,7 +577,7 @@ package body Cpu.Operations is
    end Transfer;
 
    procedure Interrupt (Proc       : in out T_Cpu;
-                        Mem        : in out Memory.T_Memory;
+                        Bus        : in out Data_Bus.T_Data_Bus;
                         Vector     :        Data_Types.T_Address;
                         Stack_Page :        Data_Types.T_Address)
    is
@@ -596,12 +596,12 @@ package body Cpu.Operations is
          or else not Proc.Registers.SR.I
       then
          Data_Access.Push_Address
-           (Mem        => Mem,
+           (Bus        => Bus,
             Registers  => Proc.Registers,
             Value      => PC_To_Push,
             Stack_Page => Stack_Page);
          Data_Access.Push_Byte
-           (Mem        => Mem,
+           (Bus        => Bus,
             Registers  => Proc.Registers,
             Value      => Status_Register.SR_As_Byte
                             (Proc.Registers.SR),

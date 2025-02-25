@@ -49,7 +49,7 @@ begin
 
    loop
       begin
-         Cpu.Tick (MyCPU, MyMem_Ptr.all);
+         Cpu.Tick (MyCPU, MyBus);
          if Cpu.Clock_Counter (MyCPU) = 143
          then
             Cpu.Interrupt (MyCPU, False);

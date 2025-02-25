@@ -1,5 +1,5 @@
 --  As per https://www.masswerk.at/6502/6502_instruction_set.html
-with Memory;
+with Data_Bus;
 with Data_Types;
 
 package Cpu is
@@ -17,7 +17,7 @@ package Cpu is
    procedure Reset (Proc : out T_Cpu);
 
    procedure Tick (Proc : in out T_Cpu;
-                   Mem  : in out Memory.T_Memory);
+                   Bus  : in out Data_Bus.T_Data_Bus);
 
 private
 

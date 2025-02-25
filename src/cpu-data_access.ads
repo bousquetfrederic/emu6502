@@ -1,4 +1,4 @@
-private with Memory;
+with Data_Bus;
 
 private package Cpu.Data_Access is
 
@@ -13,13 +13,13 @@ private package Cpu.Data_Access is
 
    function Addressing_Points_To
      (Addressing_Type : T_Valid_Addressing_Types;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
    return T_Location;
 
    function Fetch_Address
      (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
    return Data_Types.T_Address
    with
@@ -34,41 +34,41 @@ private package Cpu.Data_Access is
 
    function Fetch_Byte
      (Location  : T_Location;
-      Mem       : Memory.T_Memory;
+      Bus       : Data_Bus.T_Data_Bus;
       Registers : T_Registers)
    return Data_Types.T_Byte;
 
    function Fetch_Byte
      (Addressing_Type : T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : Memory.T_Memory;
+      Bus             : Data_Bus.T_Data_Bus;
       Registers       : T_Registers)
      return Data_Types.T_Byte;
 
    function Get_Address_At_Address
-     (Mem     : Memory.T_Memory;
-      Address : Data_Types.T_Address)
+     (Bus      : Data_Bus.T_Data_Bus;
+      Address  : Data_Types.T_Address)
    return Data_Types.T_Address;
 
    procedure Pull_Address
-     (Mem        :        Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :    out Data_Types.T_Address;
       Stack_Page :        Data_Types.T_Address);
 
    procedure Pull_Byte
-     (Mem        :        Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :    out Data_Types.T_Byte;
       Stack_Page :        Data_Types.T_Address);
 
    procedure Push_Address
-     (Mem        : in out Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :        Data_Types.T_Address;
       Stack_Page :        Data_Types.T_Address);
 
    procedure Push_Byte
-     (Mem        : in out Memory.T_Memory;
+     (Bus        :        Data_Bus.T_Data_Bus;
       Registers  : in out T_Registers;
       Value      :        Data_Types.T_Byte;
       Stack_Page :        Data_Types.T_Address);
@@ -80,13 +80,13 @@ private package Cpu.Data_Access is
 
    procedure Store_Byte
      (Location  :        T_Location;
-      Mem       : in out Memory.T_Memory;
+      Bus       :        Data_Bus.T_Data_Bus;
       Registers : in out T_Registers;
       Value     :        Data_Types.T_Byte);
 
    procedure Store_Byte
      (Addressing_Type :        T_Addressing_Types_To_Fetch_Bytes;
-      Mem             : in out Memory.T_Memory;
+      Bus             :        Data_Bus.T_Data_Bus;
       Registers       : in out T_Registers;
       Value           :        Data_Types.T_Byte);
 
