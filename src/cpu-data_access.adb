@@ -20,10 +20,11 @@ package body Cpu.Data_Access is
      return Data_Types.T_Word
    is
       use type Data_Types.T_Byte;
+      Tmp_Word : Data_Types.T_Word;
    begin
-      return Memory.Read_Word
-        (Mem     => Mem,
-         Address => PC + Data_Types.One_Byte);
+      Tmp_Word.Low := Memory.Read_Byte (Mem, PC + Data_Types.One_Byte);
+      Tmp_Word.High := Memory.Read_Byte (Mem, PC + 2 * Data_Types.One_Byte);
+      return Tmp_Word;
    end Following_Word;
 
    function Byte_To_Zero_Page (B : Data_Types.T_Byte)
@@ -35,8 +36,13 @@ package body Cpu.Data_Access is
      (Mem     : Memory.T_Memory;
       Address : Data_Types.T_Address)
    return Data_Types.T_Address is
-     (Data_Types.Word_To_Address
-         (Memory.Read_Word (Mem, Address)));
+      use type Data_Types.T_Byte;
+      Tmp_Word : Data_Types.T_Word;
+   begin
+      Tmp_Word.Low := Memory.Read_Byte (Mem, Address);
+      Tmp_Word.High := Memory.Read_Byte (Mem, Address + Data_Types.One_Byte);
+      return Data_Types.Word_To_Address (Tmp_Word);
+   end Get_Address_At_Address;
 
    function Addressing_Points_To
      (Addressing_Type : T_Valid_Addressing_Types;

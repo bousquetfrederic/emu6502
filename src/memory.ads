@@ -11,9 +11,9 @@ package Memory is
                        Address : Data_Types.T_Address)
      return Data_Types.T_Byte;
 
-   function Read_Word (Mem     : T_Memory;
-                       Address : Data_Types.T_Address)
-     return Data_Types.T_Word;
+--   function Read_Word (Mem     : T_Memory;
+--                       Address : Data_Types.T_Address)
+--     return Data_Types.T_Word;
 
    procedure Write_Byte (Mem     : in out T_Memory;
                          Address : Data_Types.T_Address;
