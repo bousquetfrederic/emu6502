@@ -13,16 +13,6 @@ package body Memory is
       end if;
    end Read_Byte;
 
-   function Read_Word (Mem     : T_Memory;
-                       Address : Data_Types.T_Address)
-     return Data_Types.T_Word
-   is
-      use type Data_Types.T_Byte;
-   begin
-      return (Low  => Read_Byte (Mem, Address),
-              High => Read_Byte (Mem, Address + Data_Types.One_Byte));
-   end Read_Word;
-
    procedure Write_Byte (Mem     : in out T_Memory;
                          Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte) is

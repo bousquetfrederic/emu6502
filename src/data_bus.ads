@@ -11,6 +11,14 @@ package Data_Bus is
       (Data_Bus : in out T_Data_Bus;
        Device   :        T_Data_Device);
 
+   function Read_Byte (Data_Bus : T_Data_Bus;
+                       Address : Data_Types.T_Address)
+     return Data_Types.T_Byte;
+
+   procedure Write_Byte (Data_Bus : in out T_Data_Bus;
+                         Address  :        Data_Types.T_Address;
+                         Value    :        Data_Types.T_Byte);
+
 private
 
    type T_Data_Bus is
