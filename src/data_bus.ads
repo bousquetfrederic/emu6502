@@ -1,19 +1,19 @@
-with Memory;
+with Connectables;
 with Data_Types;
 
 package Data_Bus is
 
    type T_Data_Bus is limited private;
 
-   type T_Data_Device is access all Memory.T_Memory;
+   type T_Data_Device is access all Connectables.T_Connectable'Class;
 
    procedure Connect_Device
-      (Data_Bus : in out T_Data_Bus;
-       Device   :        T_Data_Device);
+      (Bus    : in out T_Data_Bus;
+       Device :        T_Data_Device);
 
    function Read_Byte (Bus     : T_Data_Bus;
                        Address : Data_Types.T_Address)
-     return Data_Types.T_Byte;
+   return Data_Types.T_Byte;
 
    procedure Write_Byte (Bus     : T_Data_Bus;
                          Address : Data_Types.T_Address;
