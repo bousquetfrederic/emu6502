@@ -3,9 +3,15 @@ with Data_Types;
 
 package Data_Bus is
 
+   Data_Bus_Too_Many_Devices : exception;
+   Data_Bus_Address_Range_Overlapping : exception;
+   Data_Bus_No_Device_For_Address : exception;
+
    type T_Data_Bus is limited private;
 
    type T_Data_Device is access all Connectables.T_Connectable'Class;
+
+   type T_Connected_Device_Nb is range 1 .. 16;
 
    procedure Connect_Device
       (Bus    : in out T_Data_Bus;
@@ -21,9 +27,12 @@ package Data_Bus is
 
 private
 
+   type T_Connected_Device_Array is array
+     (T_Connected_Device_Nb) of T_Data_Device;
+
    type T_Data_Bus is limited
    record
-      Device : T_Data_Device;
+      Devices : T_Connected_Device_Array;
    end record;
 
 end Data_Bus;

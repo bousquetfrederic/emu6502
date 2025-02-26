@@ -7,7 +7,7 @@ package body Connectables.Memory is
                        Address : Data_Types.T_Address)
    return Data_Types.T_Byte is
    begin
-      if Address > Mem.Data'Last
+      if not Address_In_Address_Space (Address, Mem.Get_Address_Space)
       then
          raise Connectable_Address_Not_In_Range with Address'Image;
       else
@@ -33,7 +33,7 @@ package body Connectables.Memory is
    begin
       --  If the last byte would end up outside of the limit
       --  of the memory, we can't write this
-      if End_Address <= Mem.Data'Last
+      if Address_In_Address_Space (Address, Mem.Get_Address_Space)
       then
          Mem.Data (Address .. End_Address)
            := Bytes (Bytes'Range);
@@ -77,10 +77,12 @@ package body Connectables.Memory is
       if not Mem.Is_Writable
       then
          raise Connectable_Not_Writable;
-      elsif Address > Mem.Data'Last
+      elsif not Address_In_Address_Space (Address, Mem.Get_Address_Space)
       then
          raise Connectable_Address_Not_In_Range
-         with Address'Image & ", Max is " & Integer'Image (Mem.Data'Length);
+           with Address'Image & " vs " &
+                Mem.Get_Address_Space.First_Address'Image & " .." &
+                Mem.Get_Address_Space.Last_Address'Image;
       else
          Mem.Data (Address) := Value;
       end if;

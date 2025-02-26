@@ -12,10 +12,6 @@ package Connectables.Memory is
                        Address : Data_Types.T_Address)
    return Data_Types.T_Byte;
 
-   overriding
-   function Size (Mem : T_Memory)
-   return Data_Types.T_Address;
-
    function Is_Writable (Mem : T_Memory) return Boolean;
 
    procedure Set_Writable
@@ -38,6 +34,10 @@ package Connectables.Memory is
       Address :        Data_Types.T_Address;
       Value   :        Data_Types.T_Byte);
 
+   overriding
+   function Get_Address_Space (Mem : T_Memory)
+   return T_Address_Space;
+
 private
 
    use type Data_Types.T_Byte;
@@ -50,9 +50,10 @@ private
    end record;
 
    overriding
-   function Size (Mem : T_Memory)
-   return Data_Types.T_Address
-   is (Mem.Data'Length);
+   function Get_Address_Space (Mem : T_Memory)
+   return T_Address_Space is
+   (First_Address => Mem.Data'First,
+    Last_Address  => Mem.Data'Last);
 
    function Is_Writable (Mem : T_Memory) return Boolean
    is (Mem.Is_Writable);
