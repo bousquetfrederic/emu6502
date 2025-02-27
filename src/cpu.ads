@@ -9,7 +9,8 @@ package Cpu is
    Invalid_Instruction : exception;
    Cpu_Was_Killed      : exception;
 
-   function Clock_Counter (Proc : T_Cpu) return Natural;
+   function Clock_Counter (Proc : T_Cpu)
+     return Data_Types.T_Clock_Counter;
 
    procedure Interrupt (Proc     : in out T_Cpu;
                         Maskable :        Boolean);
@@ -52,8 +53,6 @@ private
       SR   : T_SR;                         --  Status
       PC   : Data_Types.T_Address;         --  Program Counter
    end record;
-
-   type T_Clock_Counter is mod 2**16;
 
    type T_Cycle_Number is range 0 .. 7;
 
@@ -107,10 +106,12 @@ private
 
    type T_Interrupt is (NONE, IRQ, NMI);
 
+   use type Data_Types.T_Clock_Counter;
+
    type T_Cpu is
    record
       Registers : T_Registers;
-      Clock_Counter : T_Clock_Counter := 0;
+      Clock_Counter : Data_Types.T_Clock_Counter := 0;
       Current_Instruction : T_Instruction
         := (RESET, NONE, 7);
       Interrupt : T_Interrupt := NONE;

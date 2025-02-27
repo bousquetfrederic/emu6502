@@ -6,8 +6,9 @@ use type Data_Types.T_Address;
 
 package body Cpu is
 
-   function Clock_Counter (Proc : T_Cpu) return Natural
-   is (Natural (Proc.Clock_Counter));
+   function Clock_Counter (Proc : T_Cpu)
+   return Data_Types.T_Clock_Counter
+   is (Proc.Clock_Counter);
 
    Stack_Page : constant Data_Types.T_Address := 16#100#;
 

@@ -21,18 +21,20 @@ package Data_Bus is
                        Address : Data_Types.T_Address)
    return Data_Types.T_Byte;
 
+   procedure Tick (Bus : T_Data_Bus);
+
    procedure Write_Byte (Bus     : T_Data_Bus;
                          Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte);
 
 private
 
-   type T_Connected_Device_Array is array
+   type T_Connected_Devices_Array is array
      (T_Connected_Device_Nb) of T_Data_Device;
 
    type T_Data_Bus is limited
    record
-      Devices : T_Connected_Device_Array;
+      Devices : T_Connected_Devices_Array;
    end record;
 
 end Data_Bus;

@@ -26,6 +26,8 @@ package Connectables is
 
    type T_Connectable is abstract tagged limited private;
 
+   procedure Tick (C : in out T_Connectable'Class);
+
    function Read_Byte (C       : T_Connectable;
                        Address : Data_Types.T_Address)
    return Data_Types.T_Byte
@@ -41,6 +43,9 @@ package Connectables is
 
 private
 
-   type T_Connectable is abstract tagged limited null record;
+   type T_Connectable is abstract tagged limited
+   record
+      Clock_Counter : Data_Types.T_Clock_Counter := 0;
+   end record;
 
 end Connectables;

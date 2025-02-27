@@ -56,6 +56,16 @@ package body Data_Bus is
         with Address'Image;
    end Read_Byte;
 
+   procedure Tick (Bus : T_Data_Bus)
+   is
+   begin
+      for Dev of Bus.Devices loop
+         if Dev /= null then
+            Dev.Tick;
+         end if;
+      end loop;
+   end Tick;
+
    procedure Write_Byte (Bus     :        T_Data_Bus;
                          Address :        Data_Types.T_Address;
                          Value   :        Data_Types.T_Byte)

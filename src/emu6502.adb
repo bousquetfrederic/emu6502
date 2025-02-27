@@ -9,6 +9,7 @@ procedure Emu6502 is
    package CM renames Connectables.Memory;
 
    use type Data_Types.T_Address;
+   use type Data_Types.T_Clock_Counter;
 
    MyCPU : Cpu.T_Cpu;
    MyBus : Data_Bus.T_Data_Bus;
@@ -69,6 +70,7 @@ begin
    loop
       begin
          Cpu.Tick (MyCPU, MyBus);
+         Data_Bus.Tick (MyBus);
          if Cpu.Clock_Counter (MyCPU) = 143
          then
             Cpu.Interrupt (MyCPU, False);
