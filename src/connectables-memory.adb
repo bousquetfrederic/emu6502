@@ -76,7 +76,9 @@ package body Connectables.Memory is
    begin
       if not Mem.Is_Writable
       then
-         raise Connectable_Not_Writable;
+         --  Do nothing if not writable
+         --  TODO : there should be some log
+         null;
       elsif not Address_In_Address_Space (Address, Mem.Get_Address_Space)
       then
          raise Connectable_Address_Not_In_Range
