@@ -132,7 +132,7 @@ package body Cpu.Data_Access is
                  := Byte_To_Zero_Page (Where_In_ZP);
             begin
                Where_To := Get_Address_At_Address
-                            (Bus, Where_Is_Address + Registers.Y);
+                            (Bus, Where_Is_Address) + Registers.Y;
             end;
          when ABSOLUTE    =>
             --  operand is address
