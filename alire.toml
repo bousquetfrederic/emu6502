@@ -10,3 +10,6 @@ website = ""
 tags = []
 
 executables = ["emu6502"]
+
+[[depends-on]]
+json = "^6.0.0"

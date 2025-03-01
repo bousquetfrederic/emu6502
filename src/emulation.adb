@@ -3,7 +3,6 @@ with Data_Bus;
 with Connectables.Memory;
 with Cpu;
 with Data_Types;
-with Debug;
 
 package body Emulation is
 

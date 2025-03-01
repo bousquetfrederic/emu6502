@@ -117,4 +117,7 @@ private
       Interrupt : T_Interrupt := NONE;
    end record;
 
+   function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
+     return T_Instruction;
+
 end Cpu;
