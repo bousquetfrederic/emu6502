@@ -81,7 +81,8 @@ package body Cpu.Data_Access is
             return (L_Y, Where_To);
          when RELATIVE =>
             Where_To := Registers.PC
-              + Byte_To_Signed (Following_Byte (Bus, Registers.PC));
+              + Byte_To_Signed (Following_Byte (Bus, Registers.PC))
+              + 2 * Data_Types.One_Byte;
          when IMMEDIATE =>
             Where_To := Registers.PC + Data_Types.One_Byte;
          when ZERO_PAGE   =>
