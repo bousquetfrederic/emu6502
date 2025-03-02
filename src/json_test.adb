@@ -148,8 +148,19 @@ package body JSON_Test is
                         " found " & Cpu.Debug.Get_PC (MyCPU)'Image);
             end if;
             if Cpu.Debug.Get_A (MyCPU) /= Final_A then
-               Put_Line (File, "A  should be " & Final_A'Image &
-                        " found " & Cpu.Debug.Get_A (MyCPU)'Image);
+               Put (File, "A  should be " & Final_A'Image &
+                    " found " & Cpu.Debug.Get_A (MyCPU)'Image);
+               declare
+                  use type Data_Types.T_Byte;
+               begin
+                  if (Data_Types.T_Byte (Cpu.Debug.Get_SR (MyCPU))
+                      and 2#0001000#) /= 0
+                  then
+                     Put_Line (File, " (decimal mode set)");
+                  else
+                     Put_Line (File, " (decimal mode not set)");
+                  end if;
+               end;
             end if;
             if Cpu.Debug.Get_X (MyCPU) /= Final_X then
                Put_Line (File, "X  should be " & Final_X'Image &
