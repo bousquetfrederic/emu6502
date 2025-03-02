@@ -1,5 +1,6 @@
 with Cpu.Status_Register;
 with Cpu.Bit_Test;
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body Cpu.Arithmetic is
 
@@ -13,9 +14,9 @@ package body Cpu.Arithmetic is
       S_Val_2  : constant Boolean := Bit_Test.Bit_X_Is_Set (Value_2, 7);
       S_Result : constant Boolean := Bit_Test.Bit_X_Is_Set (Result, 7);
    begin
-      return (S_Val_1 and S_Val_2 and S_Result)
+      return (S_Val_1 and S_Val_2 and not S_Result)
               or else
-             (not S_Val_1 and not S_Val_2 and not S_Result);
+             (not S_Val_1 and not S_Val_2 and S_Result);
    end Is_Overflown;
 
    procedure Shift_Or_Rotate_Right
@@ -105,19 +106,25 @@ package body Cpu.Arithmetic is
       Overflow     : out Boolean;
       Zero         : out Boolean)
    is
-      use type Data_Types.T_9_Bits;
-      Total : constant Data_Types.T_9_Bits
-        := Value_1 + Data_Types.Opposite_Of (Value_2)
-            + Data_Types.Opposite_Of
-                (Status_Register.Not_C_As_Byte (Carry_Before));
-      Total_8_Bits : constant Data_Types.T_Byte
-        := Data_Types.T_Byte (Total and 2#011111111#);
+
+      function Opposite_Of (B : Data_Types.T_Byte)
+      return Data_Types.T_Byte
+      is
+         use type Data_Types.T_Byte;
+      begin
+         return (B xor 2#11111111#);
+      end Opposite_Of;
+
    begin
-      Carry_After := Bit_Test.Bit_8_Is_Set (Total);
-      Overflow := Is_Overflown (Value_1, Value_2, Total_8_Bits);
-      Negative := Bit_Test.Bit_X_Is_Set (Total_8_Bits, 7);
-      Zero     := Data_Types.Is_Zero (Total_8_Bits);
-      Result := Total_8_Bits;
+      Add_With_Carry
+        (Value_1      => Value_1,
+         Value_2      => Opposite_Of (Value_2),
+         Carry_Before => Carry_Before,
+         Result       => Result,
+         Carry_After  => Carry_After,
+         Negative     => Negative,
+         Overflow     => Overflow,
+         Zero         => Zero);
    end Substract_With_Carry;
 
 end Cpu.Arithmetic;
