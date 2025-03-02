@@ -304,19 +304,35 @@ package body Cpu.Operations is
       Bus  :        Data_Bus.T_Data_Bus)
    is
    begin
-      Arithmetic.Add_With_Carry
-        (Value_1      => Proc.Registers.A,
-         Value_2      =>
-           Data_Access.Fetch_Byte
-            (Addressing_Type => Proc.Current_Instruction.Addressing,
-             Bus             => Bus,
-             Registers       => Proc.Registers),
-         Carry_Before => Proc.Registers.SR.C,
-         Result       => Proc.Registers.A,
-         Carry_After  => Proc.Registers.SR.C,
-         Negative     => Proc.Registers.SR.N,
-         Overflow     => Proc.Registers.SR.V,
-         Zero         => Proc.Registers.SR.Z);
+      if Proc.Registers.SR.D then
+         Arithmetic.Decimal_Add_With_Carry
+           (Value_1      => Proc.Registers.A,
+            Value_2      =>
+            Data_Access.Fetch_Byte
+               (Addressing_Type => Proc.Current_Instruction.Addressing,
+               Bus             => Bus,
+               Registers       => Proc.Registers),
+            Carry_Before => Proc.Registers.SR.C,
+            Result       => Proc.Registers.A,
+            Carry_After  => Proc.Registers.SR.C,
+            Negative     => Proc.Registers.SR.N,
+            Overflow     => Proc.Registers.SR.V,
+            Zero         => Proc.Registers.SR.Z);
+      else
+         Arithmetic.Add_With_Carry
+           (Value_1      => Proc.Registers.A,
+            Value_2      =>
+            Data_Access.Fetch_Byte
+               (Addressing_Type => Proc.Current_Instruction.Addressing,
+               Bus             => Bus,
+               Registers       => Proc.Registers),
+            Carry_Before => Proc.Registers.SR.C,
+            Result       => Proc.Registers.A,
+            Carry_After  => Proc.Registers.SR.C,
+            Negative     => Proc.Registers.SR.N,
+            Overflow     => Proc.Registers.SR.V,
+            Zero         => Proc.Registers.SR.Z);
+      end if;
    end Add_With_Carry;
 
    procedure Compare

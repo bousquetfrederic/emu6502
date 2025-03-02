@@ -95,6 +95,67 @@ package body Cpu.Arithmetic is
       Result := Total_8_Bits;
    end Add_With_Carry;
 
+   --  From http://www.6502.org/tutorials/decimal_mode.html
+   procedure Decimal_Add_With_Carry
+     (Value_1      :     Data_Types.T_Byte;
+      Value_2      :     Data_Types.T_Byte;
+      Carry_Before :     Boolean;
+      Result       : out Data_Types.T_Byte;
+      Carry_After  : out Boolean;
+      Negative     : out Boolean;
+      Overflow     : out Boolean;
+      Zero         : out Boolean)
+   is
+
+      function Low_Digit (Value : Data_Types.T_Byte)
+      return Data_Types.T_9_Bits
+      is
+         use type Data_Types.T_Byte;
+      begin
+         return Data_Types.T_9_Bits (Value and 16#F#);
+      end Low_Digit;
+
+      function High_Digit (Value : Data_Types.T_Byte)
+      return Data_Types.T_9_Bits
+      is
+         use type Data_Types.T_Byte;
+      begin
+         return Data_Types.T_9_Bits (Value and 16#F0#);
+      end High_Digit;
+
+      use type Data_Types.T_Byte;
+      use type Data_Types.T_9_Bits;
+      Carry_Before_As_9_Bits : Data_Types.T_9_Bits;
+      Low_Digit_Result       : Data_Types.T_9_Bits;
+      Full_Result            : Data_Types.T_9_Bits;
+   begin
+      if Carry_Before then
+         Carry_Before_As_9_Bits := 1;
+      else
+         Carry_Before_As_9_Bits := 0;
+      end if;
+      Low_Digit_Result := Low_Digit (Value_1)
+                          + Low_Digit (Value_2)
+                          + Carry_Before_As_9_Bits;
+      if Low_Digit_Result >= 10 then
+         Low_Digit_Result := ((Low_Digit_Result
+                               + Data_Types.T_9_Bits (6))
+                              and 16#F#)
+                             + Data_Types.T_9_Bits (16#10#);
+      end if;
+      Full_Result := High_Digit (Value_1)
+                     + High_Digit (Value_2)
+                     + Low_Digit_Result;
+      if Full_Result >= 16#A0# then
+         Full_Result := Full_Result + Data_Types.T_9_Bits (16#60#);
+      end if;
+      Result      := Data_Types.T_Byte (Full_Result and 2#011111111#);
+      Carry_After := Full_Result > 16#100#;
+      Zero        := Result = 0;
+      Overflow    := False;
+      Negative    := False;
+   end Decimal_Add_With_Carry;
+
    procedure Substract_With_Carry
      (Value_1      :     Data_Types.T_Byte;
       Value_2      :     Data_Types.T_Byte;
