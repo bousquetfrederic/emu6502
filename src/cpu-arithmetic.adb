@@ -150,7 +150,7 @@ package body Cpu.Arithmetic is
          Full_Result := Full_Result + Data_Types.T_9_Bits (16#60#);
       end if;
       Result      := Data_Types.T_Byte (Full_Result and 2#011111111#);
-      Carry_After := Full_Result > 16#100#;
+      Carry_After := Full_Result > 16#FF#;
       Zero        := Result = 0;
       Overflow    := False;
       Negative    := False;
