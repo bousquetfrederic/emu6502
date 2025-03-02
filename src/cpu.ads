@@ -17,8 +17,10 @@ package Cpu is
 
    procedure Reset (Proc : out T_Cpu);
 
-   procedure Tick (Proc : in out T_Cpu;
-                   Bus  : in out Data_Bus.T_Data_Bus);
+   procedure Tick
+     (Proc            : in out T_Cpu;
+      Bus             : in out Data_Bus.T_Data_Bus;
+      New_Instruction :    out Boolean);
 
 private
 

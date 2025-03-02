@@ -48,13 +48,16 @@ package body Cpu.Debug is
      (Proc : in out T_Cpu;
       Bus  : in out Data_Bus.T_Data_Bus)
    is
+      New_Instruction : Boolean := False;
    begin
       Operations.Change_Instruction
          (Proc,
           Instruction_From_OP_Code
             (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
       Proc.Current_Instruction.Cycles := 1;
-      Cpu.Tick (Proc, Bus);
+      while not New_Instruction loop
+         Cpu.Tick (Proc, Bus, New_Instruction);
+      end loop;
    end Tick_One_Instruction;
 
 end Cpu.Debug;

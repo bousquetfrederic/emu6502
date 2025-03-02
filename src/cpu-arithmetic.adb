@@ -1,6 +1,5 @@
 with Cpu.Status_Register;
 with Cpu.Bit_Test;
-with Ada.Text_IO; use Ada.Text_IO;
 
 package body Cpu.Arithmetic is
 

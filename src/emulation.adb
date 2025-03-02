@@ -21,6 +21,8 @@ package body Emulation is
       := new CM.T_Memory (16#0000#, 16#9FFF#);
       MyProgram : Ada.Text_IO.File_Type;
 
+      Dummy_Boolean : Boolean;
+
    begin
 
       CM.Set_Writable (MyRam_Ptr.all, True);
@@ -71,7 +73,7 @@ package body Emulation is
 
       loop
          begin
-            Cpu.Tick (MyCPU, MyBus);
+            Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
             if Cpu.Clock_Counter (MyCPU) = 143
             then

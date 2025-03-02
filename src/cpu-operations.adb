@@ -584,11 +584,13 @@ package body Cpu.Operations is
    is
       use type Data_Types.T_Byte;
       PC_To_Push : Data_Types.T_Address;
+      SR_To_Push : T_SR := Proc.Registers.SR;
    begin
       --  BRK pushes PC+2 (extra byte of space after the BRK)
       if Proc.Current_Instruction.Instruction_Type = BRK
       then
          PC_To_Push := Proc.Registers.PC + 2 * Data_Types.One_Byte;
+         SR_To_Push.B := True;
       else
          PC_To_Push := Proc.Registers.PC;
       end if;
@@ -605,8 +607,11 @@ package body Cpu.Operations is
            (Bus        => Bus,
             Registers  => Proc.Registers,
             Value      => Status_Register.SR_As_Byte
-                            (Proc.Registers.SR),
+                            (SR_To_Push),
             Stack_Page => Stack_Page);
+         --  Set the Interrupt bit
+         --  (not in the SR we pushed to the stack)
+         Proc.Registers.SR.I := True;
          --  Create a JMP instruction which will look at $Vector
          --  for its address (so we artificially move PC to $Vector-1)
          Proc.Registers.PC := Vector - Data_Types.One_Byte;

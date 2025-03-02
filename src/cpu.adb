@@ -62,13 +62,16 @@ package body Cpu is
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
-   procedure Tick (Proc : in out T_Cpu;
-                   Bus  : in out Data_Bus.T_Data_Bus)
+   procedure Tick
+     (Proc            : in out T_Cpu;
+      Bus             : in out Data_Bus.T_Data_Bus;
+      New_Instruction :    out Boolean)
    is
       PC_Before_Tick : constant Data_Types.T_Address
         := Proc.Registers.PC;
    begin
       Proc.Clock_Counter := Proc.Clock_Counter + 1;
+      New_Instruction := False;
       Logging.Dump_Clock_Counter (Proc);
       --  One more cycle
       Proc.Current_Instruction.Cycles :=
@@ -173,6 +176,12 @@ package body Cpu is
                --  clear it.
                Proc.Interrupt := NONE;
                --  Fetch the new instruction
+               --  Indicate that we move to a new instruction
+               --  (we don't set that boolean when we add an
+               --  instruction, for example with BRK which adds
+               --  a JMP. We only do it here when an actual
+               --  instruction is read from the memory)
+               New_Instruction := True;
                Operations.Change_Instruction
                  (Proc,
                   Instruction_From_OP_Code
