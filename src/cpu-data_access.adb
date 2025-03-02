@@ -36,11 +36,20 @@ package body Cpu.Data_Access is
      (Bus     : Data_Bus.T_Data_Bus;
       Address : Data_Types.T_Address)
    return Data_Types.T_Address is
-      use type Data_Types.T_Byte;
+      use type Data_Types.T_Address;
+      Address_Low : constant Data_Types.T_Address
+        := Address;
+      Address_High : Data_Types.T_Address;
       Tmp_Word : Data_Types.T_Word;
    begin
-      Tmp_Word.Low := Data_Bus.Read_Byte (Bus, Address);
-      Tmp_Word.High := Data_Bus.Read_Byte (Bus, Address + Data_Types.One_Byte);
+      if (Address_Low and 16#FF#) = 16#FF# then
+         --  Addresses don't cross pages
+         Address_High := Address_Low and 16#FF00#;
+      else
+         Address_High := Address_Low + Data_Types.One_Byte;
+      end if;
+      Tmp_Word.Low := Data_Bus.Read_Byte (Bus, Address_Low);
+      Tmp_Word.High := Data_Bus.Read_Byte (Bus, Address_High);
       return Data_Types.Word_To_Address (Tmp_Word);
    end Get_Address_At_Address;
 
