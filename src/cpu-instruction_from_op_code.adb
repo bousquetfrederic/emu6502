@@ -36,7 +36,7 @@ return T_Instruction is
    16#F0# => (BEQ, RELATIVE,    2),
    --  BIT --
    16#24# => (BIT, ZERO_PAGE,   3),
-   16#2C# => (BIT, ZERO_PAGE_X, 4),
+   16#2C# => (BIT, ABSOLUTE,    4),
    --  BMI --
    16#30# => (BMI, RELATIVE,    2),
    --  BNE --
