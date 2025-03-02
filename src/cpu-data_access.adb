@@ -44,6 +44,23 @@ package body Cpu.Data_Access is
       return Data_Types.Word_To_Address (Tmp_Word);
    end Get_Address_At_Address;
 
+   --  In Zero page, if at FF, next byte is at 00 (no carry)
+   function Get_Address_In_Zero_Page
+     (Bus     : Data_Bus.T_Data_Bus;
+      Where   : Data_Types.T_Byte)
+   return Data_Types.T_Address is
+      use type Data_Types.T_Byte;
+      Address_Low : constant Data_Types.T_Address
+        := Byte_To_Zero_Page (Where);
+      Address_High : constant Data_Types.T_Address
+        := Byte_To_Zero_Page (Where + Data_Types.One_Byte);
+      Tmp_Word : Data_Types.T_Word;
+   begin
+      Tmp_Word.Low := Data_Bus.Read_Byte (Bus, Address_Low);
+      Tmp_Word.High := Data_Bus.Read_Byte (Bus, Address_High);
+      return Data_Types.Word_To_Address (Tmp_Word);
+   end Get_Address_In_Zero_Page;
+
    function Addressing_Points_To
      (Addressing_Type : T_Valid_Addressing_Types;
       Bus             : Data_Bus.T_Data_Bus;
@@ -114,11 +131,9 @@ package body Cpu.Data_Access is
                Where_In_ZP : constant Data_Types.T_Byte
                  := Following_Byte (Bus, Registers.PC)
                     + Registers.X;
-               Where_Is_Address : constant Data_Types.T_Address
-                 := Byte_To_Zero_Page (Where_In_ZP);
             begin
-               Where_To := Get_Address_At_Address
-                             (Bus, Where_Is_Address);
+               Where_To := Get_Address_In_Zero_Page
+                             (Bus, Where_In_ZP);
             end;
          when INDIRECT_Y  =>
             --  operand is zeropage address;
@@ -128,11 +143,9 @@ package body Cpu.Data_Access is
             declare
                Where_In_ZP : constant Data_Types.T_Byte
                  := Following_Byte (Bus, Registers.PC);
-               Where_Is_Address : constant Data_Types.T_Address
-                 := Byte_To_Zero_Page (Where_In_ZP);
             begin
-               Where_To := Get_Address_At_Address
-                            (Bus, Where_Is_Address) + Registers.Y;
+               Where_To := Get_Address_In_Zero_Page
+                            (Bus, Where_In_ZP) + Registers.Y;
             end;
          when ABSOLUTE    =>
             --  operand is address
