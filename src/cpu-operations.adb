@@ -164,6 +164,7 @@ package body Cpu.Operations is
          Registers  => Proc.Registers,
          Value      => Tmp_SR_As_Byte,
          Stack_Page => Stack_Page);
+      Tmp_SR := Status_Register.Byte_As_SR (Tmp_SR_As_Byte);
       Proc.Registers.SR :=
        (C => Tmp_SR.C,
         Z => Tmp_SR.Z,
