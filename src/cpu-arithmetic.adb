@@ -128,6 +128,7 @@ package body Cpu.Arithmetic is
       Carry_Before_As_9_Bits : Data_Types.T_9_Bits;
       Low_Digit_Result       : Data_Types.T_9_Bits;
       Full_Result            : Data_Types.T_9_Bits;
+      Tmp_Result             : Data_Types.T_Byte;
    begin
       if Carry_Before then
          Carry_Before_As_9_Bits := 1;
@@ -146,14 +147,15 @@ package body Cpu.Arithmetic is
       Full_Result := High_Digit (Value_1)
                      + High_Digit (Value_2)
                      + Low_Digit_Result;
+      Overflow := Bit_Test.Bit_8_Is_Set (Full_Result);
+      Tmp_Result := Data_Types.T_Byte (Full_Result and 2#011111111#);
+      Negative := Bit_Test.Bit_X_Is_Set (Tmp_Result, 7);
       if Full_Result >= 16#A0# then
          Full_Result := Full_Result + Data_Types.T_9_Bits (16#60#);
       end if;
       Result      := Data_Types.T_Byte (Full_Result and 2#011111111#);
       Carry_After := Full_Result > 16#FF#;
       Zero        := Result = 0;
-      Overflow    := False;
-      Negative    := False;
    end Decimal_Add_With_Carry;
 
    procedure Substract_With_Carry
