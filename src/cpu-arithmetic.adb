@@ -122,12 +122,12 @@ package body Cpu.Arithmetic is
       Overflow     : out Boolean;
       Zero         : out Boolean)
    is
-      use type Data_Types.T_Byte;
       use type Data_Types.T_9_Bits;
       Carry_Before_As_9_Bits : Data_Types.T_9_Bits;
       Low_Digit_Result       : Data_Types.T_9_Bits;
       Full_Result            : Data_Types.T_9_Bits;
-      Tmp_Result             : Data_Types.T_Byte;
+      Dummy_Result           : Data_Types.T_Byte;
+      Dummy_Carry_After      : Boolean;
    begin
       if Carry_Before then
          Carry_Before_As_9_Bits := 1;
@@ -146,17 +146,26 @@ package body Cpu.Arithmetic is
       Full_Result := High_Digit (Value_1)
                      + High_Digit (Value_2)
                      + Low_Digit_Result;
-      Overflow := Bit_Test.Bit_8_Is_Set (Full_Result);
-      Tmp_Result := Data_Types.T_Byte (Full_Result and 2#011111111#);
-      Negative := Bit_Test.Bit_X_Is_Set (Tmp_Result, 7);
       if Full_Result >= 16#A0# then
          Full_Result := Full_Result + Data_Types.T_9_Bits (16#60#);
       end if;
       Result      := Data_Types.T_Byte (Full_Result and 2#011111111#);
       Carry_After := Full_Result > 16#FF#;
-      Zero        := Result = 0;
+
+      --  get the flags from the binary add
+      Add_With_Carry
+        (Value_1      => Value_1,
+         Value_2      => Value_2,
+         Carry_Before => Carry_Before,
+         Result       => Dummy_Result,
+         Carry_After  => Dummy_Carry_After,
+         Negative     => Negative,
+         Overflow     => Overflow,
+         Zero         => Zero);
+
    end Decimal_Add_With_Carry;
 
+   --  From http://www.6502.org/tutorials/decimal_mode.html
    procedure Decimal_Subtract_With_Carry
      (Value_1      :     Data_Types.T_Byte;
       Value_2      :     Data_Types.T_Byte;
