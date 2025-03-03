@@ -95,6 +95,22 @@ package body Cpu.Arithmetic is
       Result := Total_8_Bits;
    end Add_With_Carry;
 
+   function Low_Digit (Value : Data_Types.T_Byte)
+   return Data_Types.T_9_Bits
+   is
+      use type Data_Types.T_Byte;
+   begin
+      return Data_Types.T_9_Bits (Value and 16#F#);
+   end Low_Digit;
+
+   function High_Digit (Value : Data_Types.T_Byte)
+   return Data_Types.T_9_Bits
+   is
+      use type Data_Types.T_Byte;
+   begin
+      return Data_Types.T_9_Bits (Value and 16#F0#);
+   end High_Digit;
+
    --  From http://www.6502.org/tutorials/decimal_mode.html
    procedure Decimal_Add_With_Carry
      (Value_1      :     Data_Types.T_Byte;
@@ -106,23 +122,6 @@ package body Cpu.Arithmetic is
       Overflow     : out Boolean;
       Zero         : out Boolean)
    is
-
-      function Low_Digit (Value : Data_Types.T_Byte)
-      return Data_Types.T_9_Bits
-      is
-         use type Data_Types.T_Byte;
-      begin
-         return Data_Types.T_9_Bits (Value and 16#F#);
-      end Low_Digit;
-
-      function High_Digit (Value : Data_Types.T_Byte)
-      return Data_Types.T_9_Bits
-      is
-         use type Data_Types.T_Byte;
-      begin
-         return Data_Types.T_9_Bits (Value and 16#F0#);
-      end High_Digit;
-
       use type Data_Types.T_Byte;
       use type Data_Types.T_9_Bits;
       Carry_Before_As_9_Bits : Data_Types.T_9_Bits;
@@ -158,7 +157,69 @@ package body Cpu.Arithmetic is
       Zero        := Result = 0;
    end Decimal_Add_With_Carry;
 
-   procedure Substract_With_Carry
+   procedure Decimal_Subtract_With_Carry
+     (Value_1      :     Data_Types.T_Byte;
+      Value_2      :     Data_Types.T_Byte;
+      Carry_Before :     Boolean;
+      Result       : out Data_Types.T_Byte;
+      Carry_After  : out Boolean;
+      Negative     : out Boolean;
+      Overflow     : out Boolean;
+      Zero         : out Boolean)
+   is
+
+      function Minus_Of (Value : Data_Types.T_9_Bits)
+      return Data_Types.T_9_Bits
+      is
+         use type Data_Types.T_9_Bits;
+      begin
+         return (Value xor 2#111111111#)
+                + Data_Types.T_9_Bits (1);
+      end Minus_Of;
+
+      use type Data_Types.T_9_Bits;
+      Carry_Before_As_9_Bits : Data_Types.T_9_Bits;
+      Low_Digit_Result       : Data_Types.T_9_Bits;
+      Full_Result            : Data_Types.T_9_Bits;
+      Dummy_Result           : Data_Types.T_Byte;
+   begin
+      if Carry_Before then
+         Carry_Before_As_9_Bits := 1;
+      else
+         Carry_Before_As_9_Bits := 0;
+      end if;
+      Low_Digit_Result := Low_Digit (Value_1)
+                          + Minus_Of (Low_Digit (Value_2))
+                          + Carry_Before_As_9_Bits
+                          + Minus_Of (1);
+      if Bit_Test.Bit_8_Is_Set (Low_Digit_Result) then
+         Low_Digit_Result := ((Low_Digit_Result
+                               + Minus_Of (6))
+                              and 16#F#)
+                             + Minus_Of (16#10#);
+      end if;
+      Full_Result := High_Digit (Value_1)
+                     + Minus_Of (High_Digit (Value_2))
+                     + Low_Digit_Result;
+      if Bit_Test.Bit_8_Is_Set (Full_Result) then
+         Full_Result := Full_Result + Minus_Of (16#60#);
+      end if;
+      Result      := Data_Types.T_Byte (Full_Result and 2#011111111#);
+
+      --  get the flags from the binary subtract
+      Subtract_With_Carry
+        (Value_1      => Value_1,
+         Value_2      => Value_2,
+         Carry_Before => Carry_Before,
+         Result       => Dummy_Result,
+         Carry_After  => Carry_After,
+         Negative     => Negative,
+         Overflow     => Overflow,
+         Zero         => Zero);
+
+   end Decimal_Subtract_With_Carry;
+
+   procedure Subtract_With_Carry
      (Value_1      :     Data_Types.T_Byte;
       Value_2      :     Data_Types.T_Byte;
       Carry_Before :     Boolean;
@@ -187,6 +248,6 @@ package body Cpu.Arithmetic is
          Negative     => Negative,
          Overflow     => Overflow,
          Zero         => Zero);
-   end Substract_With_Carry;
+   end Subtract_With_Carry;
 
 end Cpu.Arithmetic;

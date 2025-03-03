@@ -279,25 +279,41 @@ package body Cpu.Operations is
          Value     => Shifted_8_Bits);
    end Shift_Or_Rotate;
 
-   procedure Substract_with_Carry
+   procedure Subtract_with_Carry
      (Proc : in out T_Cpu;
       Bus  :        Data_Bus.T_Data_Bus)
    is
    begin
-      Arithmetic.Substract_With_Carry
-        (Value_1      => Proc.Registers.A,
-         Value_2      =>
-           Data_Access.Fetch_Byte
-            (Addressing_Type => Proc.Current_Instruction.Addressing,
-             Bus             => Bus,
-             Registers       => Proc.Registers),
-         Carry_Before => Proc.Registers.SR.C,
-         Result       => Proc.Registers.A,
-         Carry_After  => Proc.Registers.SR.C,
-         Negative     => Proc.Registers.SR.N,
-         Overflow     => Proc.Registers.SR.V,
-         Zero         => Proc.Registers.SR.Z);
-   end Substract_with_Carry;
+      if Proc.Registers.SR.D then
+         Arithmetic.Decimal_Subtract_With_Carry
+           (Value_1      => Proc.Registers.A,
+            Value_2      =>
+              Data_Access.Fetch_Byte
+               (Addressing_Type => Proc.Current_Instruction.Addressing,
+               Bus             => Bus,
+               Registers       => Proc.Registers),
+            Carry_Before => Proc.Registers.SR.C,
+            Result       => Proc.Registers.A,
+            Carry_After  => Proc.Registers.SR.C,
+            Negative     => Proc.Registers.SR.N,
+            Overflow     => Proc.Registers.SR.V,
+            Zero         => Proc.Registers.SR.Z);
+      else
+         Arithmetic.Subtract_With_Carry
+           (Value_1      => Proc.Registers.A,
+            Value_2      =>
+              Data_Access.Fetch_Byte
+               (Addressing_Type => Proc.Current_Instruction.Addressing,
+               Bus             => Bus,
+               Registers       => Proc.Registers),
+            Carry_Before => Proc.Registers.SR.C,
+            Result       => Proc.Registers.A,
+            Carry_After  => Proc.Registers.SR.C,
+            Negative     => Proc.Registers.SR.N,
+            Overflow     => Proc.Registers.SR.V,
+            Zero         => Proc.Registers.SR.Z);
+      end if;
+   end Subtract_with_Carry;
 
    procedure Add_With_Carry
      (Proc : in out T_Cpu;
@@ -353,7 +369,7 @@ package body Cpu.Operations is
          when others =>
             raise Cpu_Internal_Wrong_Operation;
       end case;
-      Arithmetic.Substract_With_Carry
+      Arithmetic.Subtract_With_Carry
         (Value_1      => Register_Value,
          Value_2      =>
            Data_Access.Fetch_Byte

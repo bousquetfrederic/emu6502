@@ -132,7 +132,7 @@ package body Cpu is
             when STA | STX | STY =>
                Operations.Store_Value (Proc, Bus);
             when SBC =>
-               Operations.Substract_with_Carry (Proc, Bus);
+               Operations.Subtract_with_Carry (Proc, Bus);
             when SEC | SED | SEI =>
                Operations.Set_SR (Proc);
             when TAX | TAY | TSX | TXA | TXS | TYA =>

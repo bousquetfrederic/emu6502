@@ -84,7 +84,7 @@ private package Cpu.Operations is
      (Proc : in out T_Cpu;
       Bus  : in out Data_Bus.T_Data_Bus);
 
-   procedure Substract_with_Carry
+   procedure Subtract_with_Carry
      (Proc : in out T_Cpu;
       Bus  :        Data_Bus.T_Data_Bus);
 
