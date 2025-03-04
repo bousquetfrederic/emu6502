@@ -21,7 +21,7 @@ package Data_Bus is
                        Address : Data_Types.T_Address)
    return Data_Types.T_Byte;
 
-   procedure Tick (Bus : T_Data_Bus);
+   procedure Tick (Bus : in out T_Data_Bus);
 
    procedure Write_Byte (Bus     : T_Data_Bus;
                          Address : Data_Types.T_Address;
@@ -34,7 +34,8 @@ private
 
    type T_Data_Bus is limited
    record
-      Devices : T_Connected_Devices_Array;
+      Clock_Counter : Data_Types.T_Clock_Counter := 0;
+      Devices       : T_Connected_Devices_Array;
    end record;
 
 end Data_Bus;

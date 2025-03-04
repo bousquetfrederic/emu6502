@@ -1,3 +1,5 @@
+with Data_Bus.Logging;
+
 package body Data_Bus is
 
    procedure Connect_Device
@@ -43,22 +45,27 @@ package body Data_Bus is
                        Address  : Data_Types.T_Address)
    return Data_Types.T_Byte is
       use all type Connectables.T_Address_Space;
+      Value : Data_Types.T_Byte;
    begin
       for Dev of Bus.Devices loop
          if Dev /= null
             and then Connectables.Address_In_Address_Space
                        (Address, Dev.Get_Address_Space)
          then
-            return Connectables.Read_Byte (Dev.all, Address);
+            Value := Connectables.Read_Byte (Dev.all, Address);
+            Logging.Dump_Read (Bus, Address, Value);
+            return Value;
          end if;
       end loop;
       raise Data_Bus_No_Device_For_Address
         with Address'Image;
    end Read_Byte;
 
-   procedure Tick (Bus : T_Data_Bus)
+   procedure Tick (Bus : in out T_Data_Bus)
    is
+      use type Data_Types.T_Clock_Counter;
    begin
+      Bus.Clock_Counter := Bus.Clock_Counter + 1;
       for Dev of Bus.Devices loop
          if Dev /= null then
             Dev.Tick;
@@ -78,6 +85,7 @@ package body Data_Bus is
                        (Address, Dev.Get_Address_Space)
          then
             Connectables.Write_Byte (Dev.all, Address, Value);
+            Logging.Dump_Write (Bus, Address, Value);
             Found := True;
          end if;
       end loop;

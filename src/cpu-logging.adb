@@ -9,6 +9,10 @@ package body Cpu.Logging is
    procedure Dump_Current_Instruction (Proc : T_Cpu) is
    begin
       if Debug_On then
+         Text_IO.Put
+           (Debug_File, "CPU : " &
+                        Proc.Clock_Counter'Image &
+                        " : ");
          Text_IO.Put_Line
            (Debug_File, Proc.Current_Instruction.Instruction_Type'Image
                & " - "
@@ -20,7 +24,7 @@ package body Cpu.Logging is
    begin
       if Debug_On then
          Text_IO.Put_Line
-           (Debug_File, "Clock: " & Proc.Clock_Counter'Image);
+           (Debug_File, "CPU : " & Proc.Clock_Counter'Image);
       end if;
    end Dump_Clock_Counter;
 
@@ -29,6 +33,10 @@ package body Cpu.Logging is
       if Debug_On then
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
+         Text_IO.Put
+           (Debug_File, "CPU : " &
+                        Proc.Clock_Counter'Image &
+                        " : ");
          Text_IO.Put (Debug_File, "A = ");
          Byte_IO.Put (Debug_File, Proc.Registers.A);
          Text_IO.Put (Debug_File, "  X = ");
