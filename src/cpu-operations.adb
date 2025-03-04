@@ -75,9 +75,9 @@ package body Cpu.Operations is
             if Data_Access.Addresses_On_Same_Page
                  (Proc.Registers.PC, Where_To.Address)
             then
-               New_Instruction.Cycles := 1;
+               New_Instruction.Cycle := 1;
             else
-               New_Instruction.Cycles := 2;
+               New_Instruction.Cycle := 2;
             end if;
             Proc.Registers.PC := Where_To.Address;
             Change_Instruction (Proc, New_Instruction);

@@ -103,7 +103,7 @@ private
    record
       Instruction_Type : T_Instruction_Types;
       Addressing       : T_Addressing_Types;
-      Cycles           : T_Cycle_Number;
+      Cycle            : T_Cycle_Number;
    end record;
 
    type T_Interrupt is (NONE, IRQ, NMI);

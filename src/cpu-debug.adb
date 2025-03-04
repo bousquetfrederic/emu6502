@@ -54,7 +54,7 @@ package body Cpu.Debug is
          (Proc,
           Instruction_From_OP_Code
             (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
-      Proc.Current_Instruction.Cycles := 1;
+      Proc.Current_Instruction.Cycle := 1;
       while not New_Instruction loop
          Cpu.Tick (Proc, Bus, New_Instruction);
       end loop;

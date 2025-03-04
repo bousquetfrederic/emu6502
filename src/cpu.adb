@@ -74,10 +74,10 @@ package body Cpu is
       New_Instruction := False;
       Logging.Dump_Clock_Counter (Proc);
       --  One more cycle
-      Proc.Current_Instruction.Cycles :=
-        Proc.Current_Instruction.Cycles - 1;
+      Proc.Current_Instruction.Cycle :=
+        Proc.Current_Instruction.Cycle - 1;
       --  Did the current instruction finish?
-      if Proc.Current_Instruction.Cycles = 0 then
+      if Proc.Current_Instruction.Cycle = 0 then
          --  Perform the instruction
          case Proc.Current_Instruction.Instruction_Type is
             when KILL =>
@@ -145,7 +145,7 @@ package body Cpu is
          --  If there is still a cycle left, it means an
          --  instruction was added in the processing above
          --  (RESET adds a JMP), so don't do anything
-         if Proc.Current_Instruction.Cycles = 0 then
+         if Proc.Current_Instruction.Cycle = 0 then
             --  Move the PC to the next instruction
             --  unless it was changed by the current
             --  instruction (exemple: JMP)
