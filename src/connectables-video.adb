@@ -1,4 +1,5 @@
 with Connectables.Video.Logging;
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body Connectables.Video is
 
@@ -28,10 +29,14 @@ package body Connectables.Video is
       Column        : out Positive)
    is
       use type Data_Types.T_Address;
-      Pos : constant Natural := Natural (First_Address - Address);
+      Pos : constant Natural := Natural (Address - First_Address);
    begin
       Line := (Pos / Line_Length) + 1;
       Column := (Pos mod Line_Length) + 1;
+      Put_Line ("ATGP Line=" & Line'Image &
+                " Column=" & Column'Image &
+                " FA=" & First_Address'Image &
+                " Pos=" & Pos'Image);
    end Address_To_Grid_Pos;
 
    overriding
@@ -65,9 +70,11 @@ package body Connectables.Video is
       end if;
    end Read_Byte;
 
-   procedure Refresh (Vid : T_Video) is
+   procedure Refresh (Vid  : T_Video;
+                      File : Ada.Text_IO.File_Type)
+   is
    begin
-      Logging.Dump_Screen (Vid);
+      Logging.Dump_Screen (Vid, File);
    end Refresh;
 
    overriding

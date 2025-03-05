@@ -1,3 +1,4 @@
+with Ada.Text_IO;
 package Connectables.Video is
 
    type T_Video (First_Address : Data_Types.T_Address;
@@ -18,7 +19,8 @@ package Connectables.Video is
       Address :        Data_Types.T_Address;
       Value   :        Data_Types.T_Byte);
 
-   procedure Refresh (Vid : T_Video);
+   procedure Refresh (Vid  : T_Video;
+                      File : Ada.Text_IO.File_Type);
 
 private
 

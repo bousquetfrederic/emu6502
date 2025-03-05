@@ -6,6 +6,7 @@ package Connectables.Video.Logging is
    Debug_File : Ada.Text_IO.File_Type :=
                   Ada.Text_IO.Standard_Output;
 
-   procedure Dump_Screen (Vid : T_Video);
+   procedure Dump_Screen (Vid  : T_Video;
+                          File : Ada.Text_IO.File_Type);
 
 end Connectables.Video.Logging;

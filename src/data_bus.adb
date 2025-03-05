@@ -52,8 +52,8 @@ package body Data_Bus is
             and then Connectables.Address_In_Address_Space
                        (Address, Dev.Get_Address_Space)
          then
-            Value := Connectables.Read_Byte (Dev.all, Address);
             Logging.Dump_Read (Bus, Address, Value);
+            Value := Connectables.Read_Byte (Dev.all, Address);
             return Value;
          end if;
       end loop;
@@ -84,8 +84,8 @@ package body Data_Bus is
             and then Connectables.Address_In_Address_Space
                        (Address, Dev.Get_Address_Space)
          then
-            Connectables.Write_Byte (Dev.all, Address, Value);
             Logging.Dump_Write (Bus, Address, Value);
+            Connectables.Write_Byte (Dev.all, Address, Value);
             Found := True;
          end if;
       end loop;

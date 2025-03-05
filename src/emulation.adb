@@ -2,6 +2,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Data_Bus;
 with Connectables.Memory;
 with Connectables.Video;
+with Connectables.Video.Logging;
 with Cpu;
 with Data_Types;
 
@@ -24,6 +25,7 @@ package body Emulation is
       MyVid_Ptr : constant CV.T_Video_Ptr
       := new CV.T_Video (16#BB80#, 40, 28);
       MyProgram : Ada.Text_IO.File_Type;
+      MyScreen  : Ada.Text_IO.File_Type;
 
       Dummy_Boolean : Boolean;
 
@@ -84,7 +86,9 @@ package body Emulation is
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
             if Cpu.Clock_Counter (MyCPU) mod 16 = 0 then
-               MyVid_Ptr.Refresh;
+               Create (MyScreen, Out_File, "screen.txt");
+               MyVid_Ptr.Refresh (MyScreen);
+               Close (MyScreen);
             end if;
             if Cpu.Clock_Counter (MyCPU) = 143
             then
