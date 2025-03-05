@@ -1,6 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Data_Bus;
 with Connectables.Memory;
+with Connectables.Video;
 with Cpu;
 with Data_Types;
 
@@ -9,6 +10,7 @@ package body Emulation is
    procedure Run_Text_Rom (Rom_Name : String) is
 
       package CM renames Connectables.Memory;
+      package CV renames Connectables.Video;
 
       use type Data_Types.T_Address;
       use type Data_Types.T_Clock_Counter;
@@ -19,6 +21,8 @@ package body Emulation is
       := new CM.T_Memory (16#C000#, 16#FFFF#);
       MyRam_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#0000#, 16#9FFF#);
+      MyVid_Ptr : constant CV.T_Video_Ptr
+      := new CV.T_Video (16#BB80#, 40, 28);
       MyProgram : Ada.Text_IO.File_Type;
 
       Dummy_Boolean : Boolean;
@@ -63,11 +67,15 @@ package body Emulation is
 
       Data_Bus.Connect_Device
       (Bus    => MyBus,
-      Device => Data_Bus.T_Data_Device (MyRom_Ptr));
+       Device => Data_Bus.T_Data_Device (MyRom_Ptr));
 
       Data_Bus.Connect_Device
       (Bus    => MyBus,
-      Device => Data_Bus.T_Data_Device (MyRam_Ptr));
+       Device => Data_Bus.T_Data_Device (MyRam_Ptr));
+
+      Data_Bus.Connect_Device
+      (Bus    => MyBus,
+       Device => Data_Bus.T_Data_Device (MyVid_Ptr));
 
       Cpu.Reset (MyCPU);
 

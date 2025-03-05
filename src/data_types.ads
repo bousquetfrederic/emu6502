@@ -11,6 +11,9 @@ package Data_Types is
 
    type T_Byte_Array is array (T_Address range <>) of T_Byte;
 
+   type T_Byte_Grid is array
+     (Positive range <>, Positive range <>) of T_Byte;
+
    type T_Signed_Byte is range -128 .. +127;
 
    function Byte_To_Signed (B : T_Byte) return T_Signed_Byte;
