@@ -91,8 +91,8 @@ package body Emulation is
             MyProgram : CM.Byte_Sequential_IO.File_Type;
             use CM.Byte_Sequential_IO;
          begin
-            Cpu.Logging.Debug_On := True;
-            Data_Bus.Logging.Debug_On := True;
+            Cpu.Logging.Debug_On := False;
+            Data_Bus.Logging.Debug_On := False;
             Data_Bus.Logging.Address_Space_Of_Interest
 --              := (16#BB80#, 16#BFDF#);
               := (16#304#, 16#307#);
