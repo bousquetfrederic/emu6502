@@ -148,7 +148,7 @@ package body Emulation is
             end if;
             if Cpu.Clock_Counter (MyCPU) mod 200000 = 99999
             then
-               Cpu.Interrupt (MyCPU, False);
+               Cpu.Interrupt (MyCPU, True);
             end if;
          exception
             when Cpu.Cpu_Was_Killed =>
