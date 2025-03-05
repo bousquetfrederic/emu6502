@@ -3,7 +3,8 @@ with Ada; use Ada;
 package body Connectables.Video.Logging is
 
    procedure Dump_Screen (Vid : T_Video;
-                          File : Ada.Text_IO.File_Type)
+                          File : Ada.Text_IO.File_Type
+                          := Ada.Text_IO.Standard_Output)
    is
    begin
       if Debug_On then

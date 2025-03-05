@@ -40,7 +40,11 @@ package body Emulation is
 
       Dummy_Boolean : Boolean;
 
+      MyDebugFile : Ada.Text_IO.File_Type;
+
    begin
+
+      Create (MyDebugFile, Out_File, "debug.txt");
 
       CM.Set_Writable (MyLowRam_Ptr.all, True);
       CM.Set_Writable (MyRom_Ptr.all, True);
@@ -87,10 +91,11 @@ package body Emulation is
             MyProgram : CM.Byte_Sequential_IO.File_Type;
             use CM.Byte_Sequential_IO;
          begin
-            Cpu.Logging.Debug_On := False;
+            Cpu.Logging.Debug_On := True;
             Data_Bus.Logging.Debug_On := True;
             Data_Bus.Logging.Address_Space_Of_Interest
-              := (16#BB80#, 16#BFDF#);
+--              := (16#BB80#, 16#BFDF#);
+              := (16#304#, 16#307#);
             CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
             CM.Load_Binary_File_To_Memory
               (MyRom_Ptr.all, 16#C000#, MyProgram);
@@ -131,7 +136,7 @@ package body Emulation is
 
       loop
          begin
-            Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
+            Cpu.Tick (MyCPU, MyBus, MyDebugFile, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
             if Cpu.Clock_Counter (MyCPU) mod 1000000 = 0 then
                Ada.Text_IO.Put_Line ("1 second");
@@ -150,6 +155,8 @@ package body Emulation is
                exit;
          end;
       end loop;
+
+      Close (MyDebugFile);
 
    end Run_Rom;
 

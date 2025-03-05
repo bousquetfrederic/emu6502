@@ -1,4 +1,5 @@
 --  As per https://www.masswerk.at/6502/6502_instruction_set.html
+with Ada.Text_IO;
 with Data_Bus;
 with Data_Types;
 
@@ -20,6 +21,8 @@ package Cpu is
    procedure Tick
      (Proc            : in out T_Cpu;
       Bus             : in out Data_Bus.T_Data_Bus;
+      Debug_File      :        Ada.Text_IO.File_Type
+      := Ada.Text_IO.Standard_Output;
       New_Instruction :    out Boolean);
 
 private

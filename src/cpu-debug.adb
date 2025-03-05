@@ -46,7 +46,9 @@ package body Cpu.Debug is
 
    procedure Tick_One_Instruction
      (Proc : in out T_Cpu;
-      Bus  : in out Data_Bus.T_Data_Bus)
+      Bus  : in out Data_Bus.T_Data_Bus;
+      Debug_File : Ada.Text_IO.File_Type
+        := Ada.Text_IO.Standard_Output)
    is
       New_Instruction : Boolean := False;
    begin
@@ -56,7 +58,7 @@ package body Cpu.Debug is
             (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
       Proc.Current_Instruction.Cycle := 1;
       while not New_Instruction loop
-         Cpu.Tick (Proc, Bus, New_Instruction);
+         Cpu.Tick (Proc, Bus, Debug_File, New_Instruction);
       end loop;
    end Tick_One_Instruction;
 
