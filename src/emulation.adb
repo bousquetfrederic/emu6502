@@ -3,6 +3,7 @@ with Data_Bus;
 with Data_Bus.Logging;
 with Connectables.Memory;
 with Connectables.Video;
+with Connectables.Versatile_Interface_Adapter;
 with Cpu;
 with Cpu.Logging;
 with Data_Types;
@@ -14,6 +15,7 @@ package body Emulation is
 
       package CM renames Connectables.Memory;
       package CV renames Connectables.Video;
+      package CVia renames Connectables.Versatile_Interface_Adapter;
 
       use type Data_Types.T_Address;
       use type Data_Types.T_Clock_Counter;
@@ -22,8 +24,14 @@ package body Emulation is
       MyBus : Data_Bus.T_Data_Bus;
       MyRom_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#C000#, 16#FFFF#);
-      MyRam_Ptr : constant CM.T_Memory_Ptr
-      := new CM.T_Memory (16#0000#, 16#BB7F#);
+      MyLowRam_Ptr : constant CM.T_Memory_Ptr
+      := new CM.T_Memory (16#0000#, 16#2FF#);
+      MyVia_Ptr : constant CVia.T_VIA_Ptr
+      := new CVia.T_VIA (16#300#);
+      MyPage3Ram_Ptr : constant CM.T_Memory_Ptr
+      := new CM.T_Memory (16#310#, 16#3FF#);
+      MyHighRam_Ptr : constant CM.T_Memory_Ptr
+      := new CM.T_Memory (16#400#, 16#BB7F#);
       MyVid_Ptr : constant CV.T_Video_Ptr
       := new CV.T_Video (16#BB80#, 40, 28);
       MySmallRam_Ptr : constant CM.T_Memory_Ptr
@@ -34,10 +42,11 @@ package body Emulation is
 
    begin
 
-      CM.Set_Writable (MyRam_Ptr.all, True);
+      CM.Set_Writable (MyLowRam_Ptr.all, True);
       CM.Set_Writable (MyRom_Ptr.all, True);
+      CM.Set_Writable (MyPage3Ram_Ptr.all, True);
+      CM.Set_Writable (MyHighRam_Ptr.all, True);
       CM.Set_Writable (MySmallRam_Ptr.all, True);
-
       if Rom_Type = TEXT then
          declare
             MyProgram : Ada.Text_IO.File_Type;
@@ -96,7 +105,19 @@ package body Emulation is
 
       Data_Bus.Connect_Device
       (Bus    => MyBus,
-       Device => Data_Bus.T_Data_Device (MyRam_Ptr));
+       Device => Data_Bus.T_Data_Device (MyLowRam_Ptr));
+
+      Data_Bus.Connect_Device
+      (Bus    => MyBus,
+       Device => Data_Bus.T_Data_Device (MyVia_Ptr));
+
+      Data_Bus.Connect_Device
+      (Bus    => MyBus,
+       Device => Data_Bus.T_Data_Device (MyPage3Ram_Ptr));
+
+      Data_Bus.Connect_Device
+      (Bus    => MyBus,
+       Device => Data_Bus.T_Data_Device (MyHighRam_Ptr));
 
       Data_Bus.Connect_Device
       (Bus    => MyBus,
