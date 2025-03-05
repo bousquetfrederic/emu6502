@@ -1,3 +1,4 @@
+with Connectables.Memory;
 package body Connectables.Memory is
 
    use type Data_Types.T_Address;
@@ -67,6 +68,23 @@ package body Connectables.Memory is
          end;
       end loop;
    end Load_Text_File_To_Memory;
+
+   procedure Load_Binary_File_To_Memory
+     (Mem     : in out T_Memory'Class;
+      Address : Data_Types.T_Address;
+      File    : Byte_Sequential_IO.File_Type)
+   is
+      use Byte_Sequential_IO;
+      Where_To : Data_Types.T_Address := Address;
+      Value : Data_Types.T_Byte;
+   begin
+      while not End_Of_File (File) loop
+         Read (File, Value);
+         Write_Byte
+           (Mem, Where_To, Value);
+         Where_To := Where_To + Data_Types.One_Byte;
+      end loop;
+   end Load_Binary_File_To_Memory;
 
    overriding
    procedure Write_Byte

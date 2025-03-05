@@ -20,7 +20,9 @@ begin
    end if;
 
    if Cli.Argument (1) = "text" then
-      Emulation.Run_Text_Rom (Cli.Argument (2));
+      Emulation.Run_Rom (Cli.Argument (2), Emulation.TEXT);
+   elsif Cli.Argument (1) = "binary" then
+      Emulation.Run_Rom (Cli.Argument (2), Emulation.BINARY);
    elsif Cli.Argument (1) = "json" then
       declare
          Result_File : File_Type;

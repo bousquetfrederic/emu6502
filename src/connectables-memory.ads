@@ -1,3 +1,4 @@
+with Ada.Sequential_IO;
 with Ada.Text_IO;
 
 package Connectables.Memory is
@@ -27,6 +28,14 @@ package Connectables.Memory is
      (Mem     : in out T_Memory'Class;
       Address : Data_Types.T_Address;
       File    : Ada.Text_IO.File_Type);
+
+   package Byte_Sequential_IO is
+     new Ada.Sequential_IO (Data_Types.T_Byte);
+
+   procedure Load_Binary_File_To_Memory
+     (Mem     : in out T_Memory'Class;
+      Address : Data_Types.T_Address;
+      File    : Byte_Sequential_IO.File_Type);
 
    overriding
    procedure Write_Byte

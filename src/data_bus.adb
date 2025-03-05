@@ -52,8 +52,8 @@ package body Data_Bus is
             and then Connectables.Address_In_Address_Space
                        (Address, Dev.Get_Address_Space)
          then
-            Logging.Dump_Read (Bus, Address, Value);
             Value := Connectables.Read_Byte (Dev.all, Address);
+            Logging.Dump_Read (Bus, Address, Value);
             return Value;
          end if;
       end loop;
