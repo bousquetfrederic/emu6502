@@ -11,7 +11,7 @@ package body Data_Bus.Logging is
                         Force   : Boolean := False)
    is begin
       if Debug_On and then
-         (Force or else 
+         (Force or else
           Connectables.Address_In_Address_Space
            (Address, Address_Space_Of_Interest))
       then

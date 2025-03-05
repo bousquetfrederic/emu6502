@@ -135,6 +135,22 @@ return T_Instruction is
    16#5E# => (LSR, ABSOLUTE_X,  7),
    --  NOP --
    16#EA# => (NOP, IMPLIED,     2),
+   --  Undocumented/Illegal NOPs
+   16#1A# | 16#3A# | 16#5A# |
+   16#7A# | 16#DA# | 16#FA# =>
+             (NOP, IMPLIED,     2),
+   16#80# | 16#82# | 16#89# |
+   16#C2# | 16#E2# =>
+             (NOP, IMMEDIATE,   2),
+   16#04# | 16#44# | 16#64# =>
+             (NOP, ZERO_PAGE,   3),
+   16#14# | 16#34# | 16#54# |
+   16#74# | 16#D4# | 16#F4# =>
+             (NOP, ZERO_PAGE_X, 3),
+   16#0C# => (NOP, ABSOLUTE,    4),
+   16#1C# | 16#3C# | 16#5C# |
+   16#7C# | 16#DC# | 16#FC# =>
+             (NOP, ABSOLUTE_X,  4),
    --  ORA --
    16#09# => (ORA, IMMEDIATE,   2),
    16#05# => (ORA, ZERO_PAGE,   3),

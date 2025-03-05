@@ -77,7 +77,7 @@ package body Cpu is
       Logging.Dump_Clock_Counter (Proc);
       --  One more cycle
          Proc.Current_Instruction.Cycle :=
-           Proc.Current_Instruction.Cycle - 1; 
+           Proc.Current_Instruction.Cycle - 1;
       --  Did the current instruction finish?
       if Proc.Current_Instruction.Cycle = 0 then
          --  Perform the instruction
