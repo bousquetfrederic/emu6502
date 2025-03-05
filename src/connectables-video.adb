@@ -33,10 +33,6 @@ package body Connectables.Video is
    begin
       Line := (Pos / Line_Length) + 1;
       Column := (Pos mod Line_Length) + 1;
-      Put_Line ("ATGP Line=" & Line'Image &
-                " Column=" & Column'Image &
-                " FA=" & First_Address'Image &
-                " Pos=" & Pos'Image);
    end Address_To_Grid_Pos;
 
    overriding

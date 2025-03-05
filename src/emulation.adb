@@ -1,8 +1,10 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Data_Bus;
+with Data_Bus.Logging;
 with Connectables.Memory;
 with Connectables.Video;
 with Cpu;
+with Cpu.Logging;
 with Data_Types;
 
 package body Emulation is
@@ -21,9 +23,11 @@ package body Emulation is
       MyRom_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#C000#, 16#FFFF#);
       MyRam_Ptr : constant CM.T_Memory_Ptr
-      := new CM.T_Memory (16#0000#, 16#9FFF#);
+      := new CM.T_Memory (16#0000#, 16#BB7F#);
       MyVid_Ptr : constant CV.T_Video_Ptr
       := new CV.T_Video (16#BB80#, 40, 28);
+      MySmallRam_Ptr : constant CM.T_Memory_Ptr
+      := new CM.T_Memory (16#BFE0#, 16#BFFF#);
       MyScreen  : Ada.Text_IO.File_Type;
 
       Dummy_Boolean : Boolean;
@@ -32,6 +36,7 @@ package body Emulation is
 
       CM.Set_Writable (MyRam_Ptr.all, True);
       CM.Set_Writable (MyRom_Ptr.all, True);
+      CM.Set_Writable (MySmallRam_Ptr.all, True);
 
       if Rom_Type = TEXT then
          declare
@@ -73,6 +78,8 @@ package body Emulation is
             MyProgram : CM.Byte_Sequential_IO.File_Type;
             use CM.Byte_Sequential_IO;
          begin
+            Cpu.Logging.Debug_On := False;
+            Data_Bus.Logging.Debug_On := False;
             CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
             CM.Load_Binary_File_To_Memory
               (MyRom_Ptr.all, 16#C000#, MyProgram);
@@ -91,6 +98,10 @@ package body Emulation is
 
       Data_Bus.Connect_Device
       (Bus    => MyBus,
+       Device => Data_Bus.T_Data_Device (MySmallRam_Ptr));
+
+      Data_Bus.Connect_Device
+      (Bus    => MyBus,
        Device => Data_Bus.T_Data_Device (MyVid_Ptr));
 
       Cpu.Reset (MyCPU);
@@ -99,15 +110,18 @@ package body Emulation is
          begin
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
-            if Cpu.Clock_Counter (MyCPU) mod 16 = 0 then
+            if Cpu.Clock_Counter (MyCPU) mod 1000000 = 0 then
+               Ada.Text_IO.Put_Line ("1 second");
+            end if;
+            if Cpu.Clock_Counter (MyCPU) mod 200000 = 0 then
                Create (MyScreen, Out_File, "screen.txt");
                MyVid_Ptr.Refresh (MyScreen);
                Close (MyScreen);
             end if;
-            if Cpu.Clock_Counter (MyCPU) = 143
-            then
-               Cpu.Interrupt (MyCPU, False);
-            end if;
+--            if Cpu.Clock_Counter (MyCPU) = 143
+--            then
+--               Cpu.Interrupt (MyCPU, False);
+--            end if;
          exception
             when Cpu.Cpu_Was_Killed =>
                exit;

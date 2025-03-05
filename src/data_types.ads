@@ -2,7 +2,7 @@ package Data_Types is
 
    type T_Address is mod 2**16;
    type T_Byte is mod 2**8;
-   type T_Clock_Counter is mod 2**16;
+   type T_Clock_Counter is mod 2**64;
 
    One_Byte : constant T_Byte := T_Byte (1);
 
