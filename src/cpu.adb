@@ -1,6 +1,8 @@
+with Ada.Text_IO;
 with Cpu;
 with Cpu.Operations;
 with Cpu.Logging;
+with Data_Bus.Logging;
 with Data_Types;
 use type Data_Types.T_Address;
 
@@ -74,8 +76,8 @@ package body Cpu is
       New_Instruction := False;
       Logging.Dump_Clock_Counter (Proc);
       --  One more cycle
-      Proc.Current_Instruction.Cycle :=
-        Proc.Current_Instruction.Cycle - 1;
+         Proc.Current_Instruction.Cycle :=
+           Proc.Current_Instruction.Cycle - 1; 
       --  Did the current instruction finish?
       if Proc.Current_Instruction.Cycle = 0 then
          --  Perform the instruction
@@ -186,6 +188,14 @@ package body Cpu is
                  (Proc,
                   Instruction_From_OP_Code
                     (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
+               if Proc.Current_Instruction.Instruction_Type = INVALID
+               then
+                  Data_Bus.Logging.Dump_Read
+                    (Bus     => Bus,
+                     Address => Proc.Registers.PC,
+                     Value   => Data_Bus.Read_Byte (Bus, Proc.Registers.PC),
+                     Force   => True);
+               end if;
             end if;
          end if;
       end if;

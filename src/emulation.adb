@@ -79,7 +79,9 @@ package body Emulation is
             use CM.Byte_Sequential_IO;
          begin
             Cpu.Logging.Debug_On := False;
-            Data_Bus.Logging.Debug_On := False;
+            Data_Bus.Logging.Debug_On := True;
+            Data_Bus.Logging.Address_Space_Of_Interest
+              := (16#BB80#, 16#BFDF#);
             CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
             CM.Load_Binary_File_To_Memory
               (MyRom_Ptr.all, 16#C000#, MyProgram);
@@ -113,15 +115,15 @@ package body Emulation is
             if Cpu.Clock_Counter (MyCPU) mod 1000000 = 0 then
                Ada.Text_IO.Put_Line ("1 second");
             end if;
-            if Cpu.Clock_Counter (MyCPU) mod 200000 = 0 then
+            if Cpu.Clock_Counter (MyCPU) mod 20000 = 1 then
                Create (MyScreen, Out_File, "screen.txt");
                MyVid_Ptr.Refresh (MyScreen);
                Close (MyScreen);
             end if;
---            if Cpu.Clock_Counter (MyCPU) = 143
---            then
---               Cpu.Interrupt (MyCPU, False);
---            end if;
+            if Cpu.Clock_Counter (MyCPU) mod 200000 = 99999
+            then
+               Cpu.Interrupt (MyCPU, False);
+            end if;
          exception
             when Cpu.Cpu_Was_Killed =>
                exit;

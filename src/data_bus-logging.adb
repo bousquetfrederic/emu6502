@@ -7,9 +7,14 @@ package body Data_Bus.Logging is
 
    procedure Dump_Read (Bus     : T_Data_Bus;
                         Address : Data_Types.T_Address;
-                        Value   : Data_Types.T_Byte)
+                        Value   : Data_Types.T_Byte;
+                        Force   : Boolean := False)
    is begin
-      if Debug_On then
+      if Debug_On and then
+         (Force or else 
+          Connectables.Address_In_Address_Space
+           (Address, Address_Space_Of_Interest))
+      then
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
          Text_IO.Put
@@ -31,7 +36,10 @@ package body Data_Bus.Logging is
                          Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte)
    is begin
-      if Debug_On then
+      if Debug_On and then
+         Connectables.Address_In_Address_Space
+           (Address, Address_Space_Of_Interest)
+      then
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
          Text_IO.Put

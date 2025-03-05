@@ -216,7 +216,7 @@ return T_Instruction is
    16#52# | 16#62# | 16#72# | 16#92# | 16#B2# |
    16#D2# | 16#F2#  => (KILL, NONE, 1),
    --  Invalid --
-   others => (INVALID, NONE,    0)
+   others => (INVALID, NONE,    1)
    );
 begin
    return OP_to_I (OP);
