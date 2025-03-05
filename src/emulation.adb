@@ -83,6 +83,9 @@ package body Emulation is
          begin
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
+            if Cpu.Clock_Counter (MyCPU) mod 16 = 0 then
+               MyVid_Ptr.Refresh;
+            end if;
             if Cpu.Clock_Counter (MyCPU) = 143
             then
                Cpu.Interrupt (MyCPU, False);

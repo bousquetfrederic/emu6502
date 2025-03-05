@@ -1,3 +1,5 @@
+with Connectables.Video.Logging;
+
 package body Connectables.Video is
 
    function Grid_Pos_To_Address
@@ -62,6 +64,11 @@ package body Connectables.Video is
          return Vid.Data (Line, Col);
       end if;
    end Read_Byte;
+
+   procedure Refresh (Vid : T_Video) is
+   begin
+      Logging.Dump_Screen (Vid);
+   end Refresh;
 
    overriding
    procedure Write_Byte

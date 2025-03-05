@@ -18,6 +18,8 @@ package Connectables.Video is
       Address :        Data_Types.T_Address;
       Value   :        Data_Types.T_Byte);
 
+   procedure Refresh (Vid : T_Video);
+
 private
 
    type T_Video (First_Address : Data_Types.T_Address;
@@ -26,7 +28,8 @@ private
    is new T_Connectable
    with record
       Address : Data_Types.T_Address := First_Address;
-      Data    : Data_Types.T_Byte_Grid (1 .. Lines, 1 .. Columns);
+      Data    : Data_Types.T_Byte_Grid (1 .. Lines, 1 .. Columns)
+        := (others => (others => 32));
    end record;
 
    overriding
