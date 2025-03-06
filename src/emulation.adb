@@ -5,9 +5,7 @@ with Connectables.Memory;
 with Connectables.Video;
 with Connectables.Versatile_Interface_Adapter;
 with Cpu;
-with Cpu.Logging;
 with Data_Types;
-with Debug;
 
 package body Emulation is
 
@@ -43,8 +41,6 @@ package body Emulation is
 
    begin
 
-      Create (Debug.Debug_File, Out_File, "debug.txt");
-
       CM.Set_Writable (MyLowRam_Ptr.all, True);
       CM.Set_Writable (MyRom_Ptr.all, True);
       CM.Set_Writable (MyPage3Ram_Ptr.all, True);
@@ -54,8 +50,6 @@ package body Emulation is
          declare
             MyProgram : Ada.Text_IO.File_Type;
          begin
-            Cpu.Logging.Debug_On := True;
-            Data_Bus.Logging.Debug_On := True;
             Data_Bus.Logging.Address_Space_Of_Interest
               := (16#0000#, 16#FFFF#);
             --  Reset Vector $C000
@@ -94,8 +88,6 @@ package body Emulation is
             MyProgram : CM.Byte_Sequential_IO.File_Type;
             use CM.Byte_Sequential_IO;
          begin
-            Cpu.Logging.Debug_On := False;
-            Data_Bus.Logging.Debug_On := False;
             Data_Bus.Logging.Address_Space_Of_Interest
               := (16#0000#, 16#FFFF#);
             CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
@@ -157,8 +149,6 @@ package body Emulation is
                exit;
          end;
       end loop;
-
-      Close (Debug.Debug_File);
 
    end Run_Rom;
 

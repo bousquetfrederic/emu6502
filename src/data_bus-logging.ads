@@ -1,6 +1,6 @@
 package Data_Bus.Logging is
 
-   Debug_On : Boolean := True;
+   Log_On : Boolean := False;
 
    Address_Space_Of_Interest : Connectables.T_Address_Space
      := (Data_Types.T_Address'First, Data_Types.T_Address'Last);

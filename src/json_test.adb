@@ -1,8 +1,6 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Containers.Vectors;
-with Cpu.Logging;
 with Data_Bus;
-with Data_Bus.Logging;
 with Connectables.Memory;
 with Cpu;
 with Cpu.Debug;
@@ -60,9 +58,6 @@ package body JSON_Test is
       Success_Count : Natural := 0;
 
    begin
-
-      Cpu.Logging.Debug_On := False;
-      Data_Bus.Logging.Debug_On := False;
 
       CM.Set_Writable (MyRam_Ptr.all, True);
       Data_Bus.Connect_Device

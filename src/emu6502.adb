@@ -1,6 +1,9 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line;
 with Cpu;
+with Cpu.Logging;
+with Log_File;
+with Data_Bus.Logging;
 with JSON_Test;
 with Emulation;
 
@@ -18,6 +21,15 @@ begin
    if Cli.Argument_Count < 2 then
       raise Argument_Error;
    end if;
+
+   for I in 3 .. Cli.Argument_Count loop
+      if Cli.Argument (I) = "log_cpu" then
+         Cpu.Logging.Log_On := True;
+      elsif Cli.Argument (I) = "log_bus" then
+         Data_Bus.Logging.Log_On := True;
+      end if;
+   end loop;
+   Create (Log_File.Log_File, Out_File, "debug.txt");
 
    if Cli.Argument (1) = "text" then
       Emulation.Run_Rom (Cli.Argument (2), Emulation.TEXT);
@@ -64,6 +76,8 @@ begin
    else
       raise Argument_Error;
    end if;
+
+   Close (Log_File.Log_File);
 
 exception
 

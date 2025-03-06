@@ -1,7 +1,7 @@
 with Ada; use Ada;
 with Ada.Text_IO;
 with Cpu.Status_Register; use Cpu.Status_Register;
-with Debug;
+with Log_File;
 
 package body Cpu.Logging is
 
@@ -10,9 +10,9 @@ package body Cpu.Logging is
 
    procedure Dump_Current_Instruction (Proc : T_Cpu)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On then
+      if Log_On then
          Text_IO.Put
            (DF,
             "CPU : " &
@@ -28,9 +28,9 @@ package body Cpu.Logging is
 
    procedure Dump_Clock_Counter (Proc : T_Cpu)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On then
+      if Log_On then
          Text_IO.Put_Line
            (DF,
             "CPU : " & Proc.Clock_Counter'Image);
@@ -39,9 +39,9 @@ package body Cpu.Logging is
 
    procedure Dump_Registers (Proc : T_Cpu)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On then
+      if Log_On then
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
          Text_IO.Put
@@ -69,9 +69,9 @@ package body Cpu.Logging is
 
    procedure Dump_Status (Proc : T_Cpu)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On then
+      if Log_On then
          Text_IO.Put_Line (DF,
                            "------------------------");
          Text_IO.Put_Line

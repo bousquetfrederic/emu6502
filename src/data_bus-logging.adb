@@ -1,6 +1,6 @@
 with Ada; use Ada;
 with Ada.Text_IO;
-with Debug;
+with Log_File;
 
 package body Data_Bus.Logging is
 
@@ -12,9 +12,9 @@ package body Data_Bus.Logging is
                         Value   : Data_Types.T_Byte;
                         Force   : Boolean := False)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On and then
+      if Log_On and then
          (Force or else
           Connectables.Address_In_Address_Space
            (Address, Address_Space_Of_Interest))
@@ -40,9 +40,9 @@ package body Data_Bus.Logging is
                          Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte)
    is
-      DF : Text_IO.File_Type renames Debug.Debug_File;
+      DF : Text_IO.File_Type renames Log_File.Log_File;
    begin
-      if Debug_On and then
+      if Log_On and then
          Connectables.Address_In_Address_Space
            (Address, Address_Space_Of_Interest)
       then
