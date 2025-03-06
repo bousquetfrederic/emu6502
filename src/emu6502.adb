@@ -1,5 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line;
+with Connectables.Video;
+with Connectables.Video.Logging;
 with Cpu;
 with Cpu.Logging;
 with Log_File;
@@ -27,6 +29,8 @@ begin
          Cpu.Logging.Log_On := True;
       elsif Cli.Argument (I) = "log_bus" then
          Data_Bus.Logging.Log_On := True;
+      elsif Cli.Argument (I) = "log_video" then
+         Connectables.Video.Logging.Log_On := True;
       end if;
    end loop;
    Create (Log_File.Log_File, Out_File, "debug.txt");

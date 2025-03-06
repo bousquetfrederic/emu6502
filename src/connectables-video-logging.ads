@@ -2,7 +2,7 @@ with Ada.Text_IO;
 
 package Connectables.Video.Logging is
 
-   Debug_On : Boolean := True;
+   Log_On : Boolean := False;
 
    procedure Dump_Screen (Vid  : T_Video;
                           File : Ada.Text_IO.File_Type

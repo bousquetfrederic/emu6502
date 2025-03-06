@@ -7,7 +7,7 @@ package body Connectables.Video.Logging is
                           := Ada.Text_IO.Standard_Output)
    is
    begin
-      if Debug_On then
+      if Log_On then
          for L in Vid.Data'Range (1) loop
             Text_IO.Put
               (File, "VIDEO : " &

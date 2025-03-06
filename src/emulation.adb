@@ -1,4 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Real_Time;
 with Data_Bus;
 with Data_Bus.Logging;
 with Connectables.Memory;
@@ -38,6 +39,11 @@ package body Emulation is
       MyScreen  : Ada.Text_IO.File_Type;
 
       Dummy_Boolean : Boolean;
+
+      use type Ada.Real_Time.Time;
+      One_Tick : constant Ada.Real_Time.Time_Span
+        := Ada.Real_Time.Microseconds (1);
+      Last_Tick : Ada.Real_Time.Time;
 
    begin
 
@@ -128,8 +134,21 @@ package body Emulation is
 
       Cpu.Reset (MyCPU);
 
+      Last_Tick := Ada.Real_Time.Clock;
       loop
          begin
+            if Ada.Real_Time.Clock < Last_Tick + One_Tick
+            then
+               delay until Last_Tick + One_Tick;
+            else
+               Ada.Text_IO.Put_Line
+               (Data_Types.T_Clock_Counter'Image
+                 (Cpu.Clock_Counter (MyCPU)) &
+               " - Too slow, took "
+               & Duration'Image (Ada.Real_Time.To_Duration
+                   (Ada.Real_Time.Clock - Last_Tick)));
+            end if;
+            Last_Tick := Ada.Real_Time.Clock;
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
             if Cpu.Clock_Counter (MyCPU) mod 1000000 = 0 then
