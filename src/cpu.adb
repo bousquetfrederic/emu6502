@@ -62,13 +62,6 @@ package body Cpu is
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
-   procedure Set_Debug (Proc      : in out T_Cpu;
-                        Debugging :        Debug.T_Debug)
-   is
-   begin
-      Proc.Debugging := Debugging;
-   end Set_Debug;
-
    procedure Tick
      (Proc            : in out T_Cpu;
       Bus             : in out Data_Bus.T_Data_Bus;

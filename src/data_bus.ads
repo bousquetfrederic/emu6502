@@ -1,6 +1,5 @@
 with Connectables;
 with Data_Types;
-with Debug;
 
 package Data_Bus is
 
@@ -37,7 +36,6 @@ private
    record
       Clock_Counter : Data_Types.T_Clock_Counter := 0;
       Devices       : T_Connected_Devices_Array;
-      Debugging     : Debug.T_Debug;
    end record;
 
 end Data_Bus;

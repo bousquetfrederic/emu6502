@@ -1,4 +1,6 @@
 with Ada; use Ada;
+with Ada.Text_IO;
+with Debug;
 
 package body Data_Bus.Logging is
 
@@ -9,7 +11,9 @@ package body Data_Bus.Logging is
                         Address : Data_Types.T_Address;
                         Value   : Data_Types.T_Byte;
                         Force   : Boolean := False)
-   is begin
+   is
+      DF : Text_IO.File_Type renames Debug.Debug_File;
+   begin
       if Debug_On and then
          (Force or else
           Connectables.Address_In_Address_Space
@@ -18,24 +22,26 @@ package body Data_Bus.Logging is
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
          Text_IO.Put
-           (Debug_File, "BUS : " &
-                        Bus.Clock_Counter'Image & " : ");
+           (DF, "BUS : " &
+                Bus.Clock_Counter'Image & " : ");
          Text_IO.Put
-           (Debug_File, "Read at : ");
+           (DF, "Read at : ");
          Address_IO.Put
-           (Debug_File, Address);
+           (DF, Address);
          Text_IO.Put
-           (Debug_File, " : ");
+           (DF, " : ");
          Byte_IO.Put
-           (Debug_File, Value);
-         Text_IO.New_Line (Debug_File);
+           (DF, Value);
+         Text_IO.New_Line (DF);
       end if;
    end Dump_Read;
 
    procedure Dump_Write (Bus     : T_Data_Bus;
                          Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte)
-   is begin
+   is
+      DF : Text_IO.File_Type renames Debug.Debug_File;
+   begin
       if Debug_On and then
          Connectables.Address_In_Address_Space
            (Address, Address_Space_Of_Interest)
@@ -43,17 +49,17 @@ package body Data_Bus.Logging is
          Byte_IO.Default_Base := 16;
          Address_IO.Default_Base := 16;
          Text_IO.Put
-           (Debug_File, "BUS : " &
-                        Bus.Clock_Counter'Image & " : ");
+           (DF, "BUS : " &
+                 Bus.Clock_Counter'Image & " : ");
          Text_IO.Put
-           (Debug_File, "Write at : ");
+           (DF, "Write at : ");
          Address_IO.Put
-           (Debug_File, Address);
+           (DF, Address);
          Text_IO.Put
-           (Debug_File, " : ");
+           (DF, " : ");
          Byte_IO.Put
-           (Debug_File, Value);
-         Text_IO.New_Line (Debug_File);
+           (DF, Value);
+         Text_IO.New_Line (DF);
       end if;
    end Dump_Write;
 

@@ -1,9 +1,7 @@
-with Ada.Text_IO;
 package Data_Bus.Logging is
 
    Debug_On : Boolean := True;
-   Debug_File : Ada.Text_IO.File_Type :=
-                  Ada.Text_IO.Standard_Output;
+
    Address_Space_Of_Interest : Connectables.T_Address_Space
      := (Data_Types.T_Address'First, Data_Types.T_Address'Last);
 

@@ -7,6 +7,7 @@ with Connectables.Versatile_Interface_Adapter;
 with Cpu;
 with Cpu.Logging;
 with Data_Types;
+with Debug;
 
 package body Emulation is
 
@@ -40,13 +41,9 @@ package body Emulation is
 
       Dummy_Boolean : Boolean;
 
---      MyDebugFile : Ada.Text_IO.File_Access
---        := new Ada.Text_IO.File_Type;
-
    begin
 
---      Create (MyDebugFile.all, Out_File, "debug.txt");
---      Cpu.Set_Debug (MyCPU, (True, MyDebugFile'Access));
+      Create (Debug.Debug_File, Out_File, "debug.txt");
 
       CM.Set_Writable (MyLowRam_Ptr.all, True);
       CM.Set_Writable (MyRom_Ptr.all, True);
@@ -57,6 +54,10 @@ package body Emulation is
          declare
             MyProgram : Ada.Text_IO.File_Type;
          begin
+            Cpu.Logging.Debug_On := True;
+            Data_Bus.Logging.Debug_On := True;
+            Data_Bus.Logging.Address_Space_Of_Interest
+              := (16#0000#, 16#FFFF#);
             --  Reset Vector $C000
             CM.Write_Byte (MyRom_Ptr.all, 16#FFFC#, 16#00#);
             CM.Write_Byte (MyRom_Ptr.all, 16#FFFD#, 16#C0#);
@@ -94,10 +95,9 @@ package body Emulation is
             use CM.Byte_Sequential_IO;
          begin
             Cpu.Logging.Debug_On := False;
-            Data_Bus.Logging.Debug_On := True;
+            Data_Bus.Logging.Debug_On := False;
             Data_Bus.Logging.Address_Space_Of_Interest
---              := (16#BB80#, 16#BFDF#);
-              := (16#300#, 16#30F#);
+              := (16#0000#, 16#FFFF#);
             CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
             CM.Load_Binary_File_To_Memory
               (MyRom_Ptr.all, 16#C000#, MyProgram);
@@ -158,7 +158,7 @@ package body Emulation is
          end;
       end loop;
 
---      Close (MyDebugFile);
+      Close (Debug.Debug_File);
 
    end Run_Rom;
 

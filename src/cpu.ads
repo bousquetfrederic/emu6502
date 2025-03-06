@@ -1,8 +1,6 @@
 --  As per https://www.masswerk.at/6502/6502_instruction_set.html
-with Ada.Text_IO;
 with Data_Bus;
 with Data_Types;
-with Debug;
 
 package Cpu is
 
@@ -23,9 +21,6 @@ package Cpu is
      (Proc            : in out T_Cpu;
       Bus             : in out Data_Bus.T_Data_Bus;
       New_Instruction :    out Boolean);
-
-   procedure Set_Debug (Proc      : in out T_Cpu;
-                        Debugging :        Debug.T_Debug);
 
 private
 
@@ -122,7 +117,6 @@ private
       Current_Instruction : T_Instruction
         := (RESET, NONE, 7);
       Interrupt : T_Interrupt := NONE;
-      Debugging : Debug.T_Debug;
    end record;
 
    function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
