@@ -16,8 +16,6 @@ package Cpu.Debug is
 
    procedure Tick_One_Instruction
      (Proc       : in out T_Cpu;
-      Bus        : in out Data_Bus.T_Data_Bus;
-      Debug_File : Ada.Text_IO.File_Type
-        := Ada.Text_IO.Standard_Output);
+      Bus        : in out Data_Bus.T_Data_Bus);
 
 end Cpu.Debug;

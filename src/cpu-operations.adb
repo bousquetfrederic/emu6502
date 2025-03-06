@@ -19,23 +19,19 @@ package body Cpu.Operations is
 
    procedure Change_Instruction
      (Proc       : in out T_Cpu;
-      I          :        T_Instruction;
-      Debug_File :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output) is
+      I          :        T_Instruction) is
    begin
       if Proc.Current_Instruction.Addressing /= NONE
       then
-         Logging.Dump_Current_Instruction (Proc, Debug_File);
-         Logging.Dump_Registers (Proc, Debug_File);
+         Logging.Dump_Current_Instruction (Proc);
+         Logging.Dump_Registers (Proc);
       end if;
       Proc.Current_Instruction := I;
    end Change_Instruction;
 
    procedure Branch
      (Proc       : in out T_Cpu;
-      Bus        :        Data_Bus.T_Data_Bus;
-      Debug_File :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output)
+      Bus        :        Data_Bus.T_Data_Bus)
    is
       use all type Data_Access.T_Location_Kind;
       Where_To  : Data_Access.T_Location;
@@ -84,7 +80,7 @@ package body Cpu.Operations is
                New_Instruction.Cycle := 2;
             end if;
             Proc.Registers.PC := Where_To.Address;
-            Change_Instruction (Proc, New_Instruction, Debug_File);
+            Change_Instruction (Proc, New_Instruction);
          end;
       end if;
    end Branch;
@@ -616,9 +612,7 @@ package body Cpu.Operations is
    procedure Interrupt (Proc       : in out T_Cpu;
                         Bus        : in out Data_Bus.T_Data_Bus;
                         Vector     :        Data_Types.T_Address;
-                        Stack_Page :        Data_Types.T_Address;
-                        Debug_File :        Ada.Text_IO.File_Type
-                        := Ada.Text_IO.Standard_Output)
+                        Stack_Page :        Data_Types.T_Address)
    is
       use type Data_Types.T_Byte;
       PC_To_Push : Data_Types.T_Address;
@@ -653,7 +647,7 @@ package body Cpu.Operations is
          --  Create a JMP instruction which will look at $Vector
          --  for its address (so we artificially move PC to $Vector-1)
          Proc.Registers.PC := Vector - Data_Types.One_Byte;
-         Change_Instruction (Proc, (JMP, ABSOLUTE, 1), Debug_File);
+         Change_Instruction (Proc, (JMP, ABSOLUTE, 1));
       end if;
    end Interrupt;
 

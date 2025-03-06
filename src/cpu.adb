@@ -1,6 +1,5 @@
 with Cpu;
 with Cpu.Operations;
-with Cpu.Logging;
 with Data_Bus.Logging;
 with Data_Types;
 use type Data_Types.T_Address;
@@ -63,11 +62,16 @@ package body Cpu is
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
+   procedure Set_Debug (Proc      : in out T_Cpu;
+                        Debugging :        Debug.T_Debug)
+   is
+   begin
+      Proc.Debugging := Debugging;
+   end Set_Debug;
+
    procedure Tick
      (Proc            : in out T_Cpu;
       Bus             : in out Data_Bus.T_Data_Bus;
-      Debug_File      :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output;
       New_Instruction :    out Boolean)
    is
       PC_Before_Tick : constant Data_Types.T_Address
@@ -86,18 +90,16 @@ package body Cpu is
                raise Cpu_Was_Killed;
             when RESET =>
                Operations.Change_Instruction
-                 (Proc, (JMP, ABSOLUTE, 1), Debug_File);
+                 (Proc, (JMP, ABSOLUTE, 1));
             when BRANCH =>
                --  This is just to way for extra cycles
                --  after a Branch instruction.
                --  PC has already been changed
                null;
             when IRQ =>
-               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page,
-                                     Debug_File);
+               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page);
             when NMI =>
-               Operations.Interrupt (Proc, Bus, 16#FFFA#, Stack_Page,
-                                     Debug_File);
+               Operations.Interrupt (Proc, Bus, 16#FFFA#, Stack_Page);
             when ADC =>
                Operations.Add_With_Carry (Proc, Bus);
             when ASL | LSR | ROL | ROR =>
@@ -106,12 +108,11 @@ package body Cpu is
                Operations.Logic_Mem_With_A (Proc, Bus);
             when BCC | BCS | BEQ | BMI |
                  BNE | BPL | BVC | BVS =>
-               Operations.Branch (Proc, Bus, Debug_File);
+               Operations.Branch (Proc, Bus);
             when BIT =>
                Operations.Bit_Mem_With_A (Proc, Bus);
             when BRK =>
-               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page,
-                                     Debug_File);
+               Operations.Interrupt (Proc, Bus, 16#FFFE#, Stack_Page);
             when CLC | CLD | CLI | CLV =>
                Operations.Clear_SR (Proc);
             when CMP | CPX | CPY =>
@@ -168,15 +169,13 @@ package body Cpu is
             if Proc.Interrupt = NMI then
                Proc.Interrupt := NONE;
                Operations.Change_Instruction
-                 (Proc, (NMI, IMPLIED, 6),
-                  Debug_File);
+                 (Proc, (NMI, IMPLIED, 6));
             elsif Proc.Interrupt = IRQ
                   and then not Proc.Registers.SR.I
             then
                Proc.Interrupt := NONE;
                Operations.Change_Instruction
-                 (Proc, (IRQ, IMPLIED, 6),
-                  Debug_File);
+                 (Proc, (IRQ, IMPLIED, 6));
             else
                --  No interrupt occured during last instruction,
                --  but perhaps an IRQ was masked, so we need to
@@ -192,8 +191,7 @@ package body Cpu is
                Operations.Change_Instruction
                  (Proc,
                   Instruction_From_OP_Code
-                    (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)),
-                     Debug_File);
+                    (Data_Bus.Read_Byte (Bus, Proc.Registers.PC)));
                if Proc.Current_Instruction.Instruction_Type = INVALID
                then
                   Data_Bus.Logging.Dump_Read

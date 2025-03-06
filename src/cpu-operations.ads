@@ -6,9 +6,7 @@ private package Cpu.Operations is
 
    procedure Change_Instruction
      (Proc       : in out T_Cpu;
-      I          :        T_Instruction;
-      Debug_File :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output);
+      I          :        T_Instruction);
 
    procedure Add_With_Carry
      (Proc : in out T_Cpu;
@@ -20,9 +18,7 @@ private package Cpu.Operations is
 
    procedure Branch
      (Proc       : in out T_Cpu;
-      Bus        :        Data_Bus.T_Data_Bus;
-      Debug_File :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output);
+      Bus        :        Data_Bus.T_Data_Bus);
 
    procedure Clear_SR
      (Proc : in out T_Cpu);
@@ -42,9 +38,7 @@ private package Cpu.Operations is
    procedure Interrupt (Proc       : in out T_Cpu;
                         Bus        : in out Data_Bus.T_Data_Bus;
                         Vector     :        Data_Types.T_Address;
-                        Stack_Page :        Data_Types.T_Address;
-                        Debug_File :        Ada.Text_IO.File_Type
-                        := Ada.Text_IO.Standard_Output);
+                        Stack_Page :        Data_Types.T_Address);
 
    procedure Jump
      (Proc       : in out T_Cpu;

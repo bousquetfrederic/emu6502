@@ -2,6 +2,7 @@
 with Ada.Text_IO;
 with Data_Bus;
 with Data_Types;
+with Debug;
 
 package Cpu is
 
@@ -21,9 +22,10 @@ package Cpu is
    procedure Tick
      (Proc            : in out T_Cpu;
       Bus             : in out Data_Bus.T_Data_Bus;
-      Debug_File      :        Ada.Text_IO.File_Type
-      := Ada.Text_IO.Standard_Output;
       New_Instruction :    out Boolean);
+
+   procedure Set_Debug (Proc      : in out T_Cpu;
+                        Debugging :        Debug.T_Debug);
 
 private
 
@@ -120,6 +122,7 @@ private
       Current_Instruction : T_Instruction
         := (RESET, NONE, 7);
       Interrupt : T_Interrupt := NONE;
+      Debugging : Debug.T_Debug;
    end record;
 
    function Instruction_From_OP_Code (OP : Data_Types.T_Byte)
