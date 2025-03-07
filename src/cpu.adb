@@ -6,10 +6,6 @@ use type Data_Types.T_Address;
 
 package body Cpu is
 
-   function Clock_Counter (Proc : T_Cpu)
-   return Data_Types.T_Clock_Counter
-   is (Proc.Clock_Counter);
-
    Stack_Page : constant Data_Types.T_Address := 16#100#;
 
    Reset_SR : constant T_SR :=
@@ -58,7 +54,6 @@ package body Cpu is
       Proc.Registers.A  := 16#00#;
       Proc.Registers.X  := 16#00#;
       Proc.Registers.Y  := 16#00#;
-      Proc.Clock_Counter := 0;
       Proc.Current_Instruction := (RESET, NONE, 7);
    end Reset;
 
@@ -70,7 +65,6 @@ package body Cpu is
       PC_Before_Tick : constant Data_Types.T_Address
         := Proc.Registers.PC;
    begin
-      Proc.Clock_Counter := Proc.Clock_Counter + 1;
       New_Instruction := False;
       --  One more cycle
          Proc.Current_Instruction.Cycle :=
@@ -188,8 +182,7 @@ package body Cpu is
                if Proc.Current_Instruction.Instruction_Type = INVALID
                then
                   Data_Bus.Logging.Dump_Read
-                    (Bus     => Bus,
-                     Address => Proc.Registers.PC,
+                    (Address => Proc.Registers.PC,
                      Value   => Data_Bus.Read_Byte (Bus, Proc.Registers.PC),
                      Force   => True);
                end if;

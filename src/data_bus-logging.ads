@@ -5,13 +5,11 @@ package Data_Bus.Logging is
    Address_Space_Of_Interest : Connectables.T_Address_Space
      := (Data_Types.T_Address'First, Data_Types.T_Address'Last);
 
-   procedure Dump_Read (Bus     : T_Data_Bus;
-                        Address : Data_Types.T_Address;
+   procedure Dump_Read (Address : Data_Types.T_Address;
                         Value   : Data_Types.T_Byte;
                         Force   : Boolean := False);
 
-   procedure Dump_Write (Bus     : T_Data_Bus;
-                         Address : Data_Types.T_Address;
+   procedure Dump_Write (Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte);
 
 end Data_Bus.Logging;

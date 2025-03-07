@@ -34,7 +34,6 @@ private
 
    type T_Data_Bus is limited
    record
-      Clock_Counter : Data_Types.T_Clock_Counter := 0;
       Devices       : T_Connected_Devices_Array;
    end record;
 

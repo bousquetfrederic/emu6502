@@ -44,8 +44,6 @@ package Connectables is
 private
 
    type T_Connectable is abstract tagged limited
-   record
-      Clock_Counter : Data_Types.T_Clock_Counter := 0;
-   end record;
+   null record;
 
 end Connectables;

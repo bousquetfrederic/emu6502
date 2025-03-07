@@ -1,4 +1,5 @@
 with Ada; use Ada;
+with Ticker;
 
 package body Connectables.Video.Logging is
 
@@ -11,7 +12,7 @@ package body Connectables.Video.Logging is
          for L in Vid.Data'Range (1) loop
             Text_IO.Put
               (File, "VIDEO : " &
-                     Vid.Clock_Counter'Image &
+                     Ticker.Clock_Counter'Image &
                      " : ");
             for C in Vid.Data'Range (2) loop
                Text_IO.Put

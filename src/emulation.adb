@@ -7,6 +7,7 @@ with Connectables.Video;
 with Connectables.Versatile_Interface_Adapter;
 with Cpu;
 with Data_Types;
+with Ticker;
 
 package body Emulation is
 
@@ -42,10 +43,6 @@ package body Emulation is
 
       use type Ada.Real_Time.Time;
       use type Ada.Real_Time.Time_Span;
-      One_Tick : constant Ada.Real_Time.Time_Span
-        := Ada.Real_Time.Microseconds (1);
-      Last_Tick : Ada.Real_Time.Time;
-      Last_1G_Tick : Ada.Real_Time.Time;
 
    begin
 
@@ -136,42 +133,37 @@ package body Emulation is
 
       Cpu.Reset (MyCPU);
 
-      Last_Tick := Ada.Real_Time.Clock;
-      Last_1G_Tick := Last_Tick;
+      Ticker.Init_Clock;
 
-      Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
-      Data_Bus.Tick (MyBus);
       loop
          declare
-            Cpu_Count_Mod_1G : constant Data_Types.T_Clock_Counter :=
-               Cpu.Clock_Counter (MyCPU) mod 1000000;
+            use type Data_Types.T_Clock_1Mhz_Counter;
          begin
             --  If we are early, wait
             --  If we are late, catch up
             if Ada.Real_Time.Clock
-               < Last_1G_Tick + One_Tick * Integer (Cpu_Count_Mod_1G)
+               < Ticker.Last_1Mhz_Tick
+                 + Ticker.One_Tick * Integer (Ticker.Clock_1Mhz_Counter)
             then
-               delay until Last_Tick + One_Tick;
+               delay until Ticker.Last_Tick + Ticker.One_Tick;
             end if;
-            Last_Tick := Ada.Real_Time.Clock;
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
-            if Cpu_Count_Mod_1G = 0 then
+            if Ticker.Clock_1Mhz_Counter = -1 then
                Ada.Text_IO.Put_Line
                  ("1G ticks took " &
-                 Duration'Image (Ada.Real_Time.To_Duration
-                   (Last_Tick - Last_1G_Tick)));
-               Last_1G_Tick := Last_Tick;
+                 Duration'Image (Ticker.Duration_Of_Last_1Mhz_Tick));
             end if;
-            if Cpu.Clock_Counter (MyCPU) mod 20000 = 1 then
+            if Ticker.Clock_Counter mod 20000 = 1 then
                Create (MyScreen, Out_File, "screen.txt");
                MyVid_Ptr.Refresh (MyScreen);
                Close (MyScreen);
             end if;
-            if Cpu.Clock_Counter (MyCPU) mod 200000 = 99999
+            if Ticker.Clock_Counter mod 200000 = 99999
             then
                Cpu.Interrupt (MyCPU, True);
             end if;
+            Ticker.Tick;
          exception
             when Cpu.Cpu_Was_Killed =>
                exit;

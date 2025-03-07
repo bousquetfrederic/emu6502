@@ -53,7 +53,7 @@ package body Data_Bus is
                        (Address, Dev.Get_Address_Space)
          then
             Value := Connectables.Read_Byte (Dev.all, Address);
-            Logging.Dump_Read (Bus, Address, Value);
+            Logging.Dump_Read (Address, Value);
             return Value;
          end if;
       end loop;
@@ -63,9 +63,7 @@ package body Data_Bus is
 
    procedure Tick (Bus : in out T_Data_Bus)
    is
-      use type Data_Types.T_Clock_Counter;
    begin
-      Bus.Clock_Counter := Bus.Clock_Counter + 1;
       for Dev of Bus.Devices loop
          if Dev /= null then
             Dev.Tick;
@@ -84,7 +82,7 @@ package body Data_Bus is
             and then Connectables.Address_In_Address_Space
                        (Address, Dev.Get_Address_Space)
          then
-            Logging.Dump_Write (Bus, Address, Value);
+            Logging.Dump_Write (Address, Value);
             Connectables.Write_Byte (Dev.all, Address, Value);
             Found := True;
          end if;

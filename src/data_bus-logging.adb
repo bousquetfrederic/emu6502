@@ -1,14 +1,14 @@
 with Ada; use Ada;
 with Ada.Text_IO;
 with Log_File;
+with Ticker;
 
 package body Data_Bus.Logging is
 
    package Byte_IO is new Text_IO.Modular_IO (Data_Types.T_Byte);
    package Address_IO is new Text_IO.Modular_IO (Data_Types.T_Address);
 
-   procedure Dump_Read (Bus     : T_Data_Bus;
-                        Address : Data_Types.T_Address;
+   procedure Dump_Read (Address : Data_Types.T_Address;
                         Value   : Data_Types.T_Byte;
                         Force   : Boolean := False)
    is
@@ -23,7 +23,7 @@ package body Data_Bus.Logging is
          Address_IO.Default_Base := 16;
          Text_IO.Put
            (DF, "BUS : " &
-                Bus.Clock_Counter'Image & " : ");
+                Ticker.Clock_Counter'Image & " : ");
          Text_IO.Put
            (DF, "Read at : ");
          Address_IO.Put
@@ -36,8 +36,7 @@ package body Data_Bus.Logging is
       end if;
    end Dump_Read;
 
-   procedure Dump_Write (Bus     : T_Data_Bus;
-                         Address : Data_Types.T_Address;
+   procedure Dump_Write (Address : Data_Types.T_Address;
                          Value   : Data_Types.T_Byte)
    is
       DF : Text_IO.File_Type renames Log_File.Log_File;
@@ -50,7 +49,7 @@ package body Data_Bus.Logging is
          Address_IO.Default_Base := 16;
          Text_IO.Put
            (DF, "BUS : " &
-                 Bus.Clock_Counter'Image & " : ");
+                 Ticker.Clock_Counter'Image & " : ");
          Text_IO.Put
            (DF, "Write at : ");
          Address_IO.Put

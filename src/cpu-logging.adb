@@ -2,6 +2,7 @@ with Ada; use Ada;
 with Ada.Text_IO;
 with Cpu.Status_Register; use Cpu.Status_Register;
 with Log_File;
+with Ticker;
 
 package body Cpu.Logging is
 
@@ -16,7 +17,7 @@ package body Cpu.Logging is
          Text_IO.Put
            (DF,
             "CPU : " &
-            Proc.Clock_Counter'Image &
+            Ticker.Clock_Counter'Image &
             " : ");
          Text_IO.Put_Line
            (DF,
@@ -25,17 +26,6 @@ package body Cpu.Logging is
             & Proc.Current_Instruction.Addressing'Image);
       end if;
    end Dump_Current_Instruction;
-
-   procedure Dump_Clock_Counter (Proc : T_Cpu)
-   is
-      DF : Text_IO.File_Type renames Log_File.Log_File;
-   begin
-      if Log_On then
-         Text_IO.Put_Line
-           (DF,
-            "CPU : " & Proc.Clock_Counter'Image);
-      end if;
-   end Dump_Clock_Counter;
 
    procedure Dump_Registers (Proc : T_Cpu)
    is
@@ -47,7 +37,7 @@ package body Cpu.Logging is
          Text_IO.Put
            (DF,
             "CPU : " &
-            Proc.Clock_Counter'Image &
+            Ticker.Clock_Counter'Image &
             " : ");
          Text_IO.Put (DF, "A = ");
          Byte_IO.Put (DF, Proc.Registers.A);
