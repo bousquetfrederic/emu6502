@@ -139,14 +139,6 @@ package body Emulation is
          declare
             use type Data_Types.T_Clock_1Mhz_Counter;
          begin
-            --  If we are early, wait
-            --  If we are late, catch up
-            if Ada.Real_Time.Clock
-               < Ticker.Last_1Mhz_Tick
-                 + Ticker.One_Tick * Integer (Ticker.Clock_1Mhz_Counter)
-            then
-               delay until Ticker.Last_Tick + Ticker.One_Tick;
-            end if;
             Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
             Data_Bus.Tick (MyBus);
             if Ticker.Clock_1Mhz_Counter = -1 then

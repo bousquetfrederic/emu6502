@@ -24,9 +24,20 @@ package body Ticker is
    is
       use type Data_Types.T_Clock_Counter;
       use type Data_Types.T_Clock_1Mhz_Counter;
+      use type Ada.Real_Time.Time_Span;
+      use type Ada.Real_Time.Time;
    begin
+      --  if we are not running late, wait
+      if Ada.Real_Time.Clock
+         < I_Last_1Mhz_Tick
+            + One_Tick * Integer (I_Clock_1Mhz_Counter)
+      then
+         delay until I_Last_Tick + One_Tick;
+      end if;
+
       I_Clock_1Mhz_Counter := Clock_1Mhz_Counter + 1;
       I_Clock_Counter := Clock_Counter + 1;
+
       I_Last_Tick := Ada.Real_Time.Clock;
       if I_Clock_1Mhz_Counter = 0 then
             I_Duration_Of_Last_1Mhz_Tick
