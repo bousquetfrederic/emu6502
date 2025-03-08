@@ -139,8 +139,8 @@ package body Emulation is
             Data_Bus.Tick (MyBus);
             if Ticker.Clock_1Mhz_Counter = -1 then
                Ada.Text_IO.Put_Line
-                 ("1G ticks took " &
-                 Duration'Image (Ticker.Duration_Of_Last_1Mhz_Tick));
+                 ("1G ticks used " &
+                 Duration'Image (Ticker.Time_Used_Last_1Mhz));
             end if;
             if Ticker.Clock_Counter mod 20000 = 1 then
                Create (MyScreen, Out_File, "screen.txt");
