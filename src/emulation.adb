@@ -1,5 +1,4 @@
 with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Real_Time;
 with Data_Bus;
 with Data_Bus.Logging;
 with Connectables.Memory;
@@ -34,15 +33,12 @@ package body Emulation is
       MyHighRam_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#400#, 16#BB7F#);
       MyVid_Ptr : constant CV.T_Video_Ptr
-      := new CV.T_Video (16#BB80#, 40, 28);
+      := new CV.T_Video (16#BB80#, 28, 40);
       MySmallRam_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#BFE0#, 16#BFFF#);
       MyScreen  : Ada.Text_IO.File_Type;
 
       Dummy_Boolean : Boolean;
-
-      use type Ada.Real_Time.Time;
-      use type Ada.Real_Time.Time_Span;
 
    begin
 
