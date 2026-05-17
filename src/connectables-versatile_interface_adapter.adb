@@ -105,6 +105,13 @@ package body Connectables.Versatile_Interface_Adapter is
             return State.Ier or IRQ_ANY;
          when AUX_CONTROL =>
             return State.Acr;
+         when PORT_B =>
+            --  Keyboard not emulated yet (Phase 3). Port B bit 7 is
+            --  the keyboard sense line, pulled high; a pressed key
+            --  pulls it low. Forcing bit 7 = 1 makes the Atmos ROM
+            --  scan conclude "no key pressed" instead of repeating a
+            --  phantom key from the default port value.
+            return Via.Bytes (PORT_B) or 16#80#;
          when others =>
             return Via.Bytes (Via.Address_To_VIA_Byte (Address));
       end case;
