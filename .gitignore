@@ -2,6 +2,8 @@
 /bin/
 /alire/
 /config/
+/.claude/
+*.ppm
 *.txt
 *.json
 *.rom
