@@ -1,22 +1,22 @@
 # emu6502 / Oric emulator
 
 A MOS 6502 emulator written in Ada, being grown into an **Oric‑1 / Atmos**
-home‑computer emulator. The CPU core is complete and validated against the
-SingleStepTests 65x02 suite; the machine layer (VIA, ULA video, window) is
-under construction.
+home‑computer emulator. The CPU core is complete (it was validated against
+the SingleStepTests 65x02 suite during development; that JSON harness has
+since been removed); the machine layer (VIA, ULA video, window) is under
+construction.
 
 ## Build & run
 
 Toolchain: **Alire** (`alr`, 2.1.x) with the bundled GNAT mingw‑w64 compiler.
-No external libraries — the display uses Win32 (`user32`/`gdi32`) via
-`pragma Linker_Options`, which the mingw linker resolves with nothing to
-install.
+Zero dependencies — no Alire crates; the display uses Win32 (`user32`/
+`gdi32`) via `pragma Linker_Options`, which the mingw linker resolves with
+nothing to install.
 
 ```
 alr build                       # build to bin/emu6502
 alr run -- binary <rom>         # run a 16 KB raw Oric ROM image (mapped at $C000)
 alr run -- text   <rom>         # load a hex-text ROM
-alr run -- json   <files...>    # run the 6502 JSON test suite (results.txt)
 ```
 
 Optional trailing args on `binary`/`text`: `log_cpu`, `log_bus`, `log_video`
