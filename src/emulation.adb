@@ -18,7 +18,6 @@ package body Emulation is
       package CVia renames Connectables.Versatile_Interface_Adapter;
 
       use type Data_Types.T_Address;
-      use type Data_Types.T_Clock_Counter;
 
       MyCPU : Cpu.T_Cpu;
       MyBus : Data_Bus.T_Data_Bus;
@@ -53,29 +52,8 @@ package body Emulation is
          begin
             Data_Bus.Logging.Address_Space_Of_Interest
               := (16#0000#, 16#FFFF#);
-            --  Reset Vector $C000
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFC#, 16#00#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFD#, 16#C0#);
-            --  IRQ Vector $D000
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFE#, 16#00#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFF#, 16#D0#);
-            --  NMI Vector $E000
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFA#, 16#00#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#FFFB#, 16#E0#);
-
-            --  NMI does Push A, LDA EE, Pull A and return
-            CM.Write_Byte (MyRom_Ptr.all, 16#E000#, 16#48#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#E001#, 16#A9#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#E002#, 16#EE#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#E003#, 16#68#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#E004#, 16#40#);
-
-            --  IRQ/BRK does Push A, LDA BB, Pull A and return
-            CM.Write_Byte (MyRom_Ptr.all, 16#D000#, 16#48#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#D001#, 16#A9#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#D002#, 16#BB#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#D003#, 16#68#);
-            CM.Write_Byte (MyRom_Ptr.all, 16#D004#, 16#40#);
+            --  No synthetic reset/IRQ/NMI vectors: a real Oric ROM
+            --  carries its own vectors and handlers at $FFFA-$FFFF.
 
             Open (MyProgram, In_File, Rom_Name);
 
@@ -131,32 +109,30 @@ package body Emulation is
 
       Ticker.Init_Clock;
 
+      Frames :
       loop
-         declare
-            use type Data_Types.T_Clock_1Mhz_Counter;
-         begin
-            Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
-            Data_Bus.Tick (MyBus);
-            if Ticker.Clock_1Mhz_Counter = -1 then
-               Ada.Text_IO.Put_Line
-                 ("1G ticks used " &
-                 Duration'Image (Ticker.Time_Used_Last_1Mhz));
-            end if;
-            if Ticker.Clock_Counter mod 20000 = 1 then
-               Create (MyScreen, Out_File, "screen.txt");
-               MyVid_Ptr.Refresh (MyScreen);
-               Close (MyScreen);
-            end if;
-            if Ticker.Clock_Counter mod 200000 = 99999
-            then
-               Cpu.Interrupt (MyCPU, True);
-            end if;
-            Ticker.Tick;
-         exception
-            when Cpu.Cpu_Was_Killed =>
-               exit;
-         end;
-      end loop;
+         for Cycle in 1 .. Ticker.Cycles_Per_Frame loop
+            begin
+               Cpu.Tick (MyCPU, MyBus, Dummy_Boolean);
+               Data_Bus.Tick (MyBus);
+               --  The 6522 VIA timers drive the maskable IRQ.
+               if CVia.Irq_Asserted (MyVia_Ptr.all) then
+                  Cpu.Interrupt (MyCPU, True);
+               end if;
+               Ticker.Count_Cycle;
+            exception
+               when Cpu.Cpu_Was_Killed =>
+                  exit Frames;
+            end;
+         end loop;
+
+         --  One video frame is done: refresh the screen and
+         --  pace the emulation to a real 50 Hz / 1 MHz.
+         Create (MyScreen, Out_File, "screen.txt");
+         MyVid_Ptr.Refresh (MyScreen);
+         Close (MyScreen);
+         Ticker.End_Of_Frame;
+      end loop Frames;
 
    end Run_Rom;
 

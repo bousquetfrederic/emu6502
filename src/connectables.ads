@@ -26,7 +26,10 @@ package Connectables is
 
    type T_Connectable is abstract tagged limited private;
 
-   procedure Tick (C : in out T_Connectable'Class);
+   --  Called once per CPU clock cycle for every connected device.
+   --  Default implementation does nothing; devices that need to
+   --  evolve over time (e.g. the VIA timers) override it.
+   procedure Tick (C : in out T_Connectable);
 
    function Read_Byte (C       : T_Connectable;
                        Address : Data_Types.T_Address)
