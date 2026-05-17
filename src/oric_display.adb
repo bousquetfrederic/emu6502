@@ -58,33 +58,44 @@ package body Oric_Display is
                      Px : constant Natural := Col * Cell_W;
                      Py : constant Natural := Row * Cell_H + Line;
                   begin
+                     --  Bit 7 inverts the cell (Oric "inverse" =
+                     --  colour complement, i.e. XOR 7), for BOTH
+                     --  attribute and character cells. This is what
+                     --  makes the cursor (an attribute byte whose
+                     --  bit 7 the ROM toggles) visible.
                      if (B / 32) mod 4 = 0 then
-                        --  Control code (bits 5,6 clear): updates
-                        --  state, the cell itself shows paper.
+                        --  Serial attribute (bits 5,6 clear). It
+                        --  updates running state AND the cell itself
+                        --  is drawn as a solid block of the (updated)
+                        --  background colour, complemented if bit 7.
                         declare
-                           Code : constant Natural := B mod 32;
+                           Attr : constant Natural := B mod 128;
+                           Inv  : constant Boolean := B >= 128;
+                           Val  : constant Natural := Attr mod 8;
+                           Cell : Color_Index;
                         begin
-                           case Code is
-                              when 0 .. 7 =>
-                                 Ink := Color_Index (Code);
-                              when 8 .. 15 =>
-                                 Alt   := Code mod 2 = 1;
-                                 Dbl   := (Code / 2) mod 2 = 1;
-                                 Blink := (Code / 4) mod 2 = 1;
-                              when 16 .. 23 =>
-                                 Paper := Color_Index (Code - 16);
+                           case (Attr / 8) mod 4 is
+                              when 0 =>            --  foreground/ink
+                                 Ink := Color_Index (Val);
+                              when 1 =>            --  text attributes
+                                 Alt   := Val mod 2 = 1;
+                                 Dbl   := (Val / 2) mod 2 = 1;
+                                 Blink := (Val / 4) mod 2 = 1;
+                              when 2 =>            --  background/paper
+                                 Paper := Color_Index (Val);
                               when others =>
-                                 null;  --  24..31: video mode
+                                 null;            --  video mode
                            end case;
+                           Cell := (if Inv then 7 - Paper else Paper);
+                           for P in 0 .. Cell_W - 1 loop
+                              Fb (Py, Px + P) := Cell;
+                           end loop;
                         end;
-                        for P in 0 .. Cell_W - 1 loop
-                           Fb (Py, Px + P) := Paper;
-                        end loop;
                      else
                         --  Displayable character.
                         declare
                            Ch   : constant Natural := B mod 128;
-                           Inv  : constant Boolean := (B / 128) mod 2 = 1;
+                           Inv  : constant Boolean := B >= 128;
                            CgB  : constant Natural :=
                              (if Alt then Charset_Alt else Charset_Std);
                            Gl   : constant Natural :=
@@ -93,13 +104,14 @@ package body Oric_Display is
                               else Line);
                            Bits : constant Natural :=
                              Read (CgB + Ch * 8 + Gl);
+                           Hide : constant Boolean := Blink and then Flash_On;
                            Fg   : Color_Index :=
-                             (if Blink and then Flash_On then Paper else Ink);
+                             (if Hide then Paper else Ink);
                            Bg   : Color_Index := Paper;
-                           Tmp  : Color_Index;
                         begin
                            if Inv then
-                              Tmp := Fg; Fg := Bg; Bg := Tmp;
+                              Fg := 7 - Fg;
+                              Bg := 7 - Bg;
                            end if;
                            for P in 0 .. Cell_W - 1 loop
                               if (Bits / (2 ** (5 - P))) mod 2 = 1 then
