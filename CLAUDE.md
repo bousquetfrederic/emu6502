@@ -143,6 +143,8 @@ mapping; video‑mode codes 24–31 consumed but ignored (HIRES is Phase 4).
 - **Phase 3 — NEXT: real keyboard.** VIA Port B bits 0–2 row select +
   AY‑3‑8912 register 14 column mask (driven through the VIA BDIR/BC1) +
   8×8 matrix; feed Win32 key events into it; replace the bit‑3 stub.
+  Detailed build order and Oricutron-verification checklist in
+  `docs/phase3-keyboard.md`.
 - **Phase 4 — later.** HIRES (240×200 @ `$A000`); AY‑3‑8912 sound; `.tap`
   cassette; Oric‑1 vs Atmos ROM selection; save states. A cross‑platform
   SDL presenter behind the existing `Screen` seam is an option (the old
