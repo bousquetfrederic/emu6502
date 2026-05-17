@@ -7,7 +7,7 @@ with Cpu;
 with Data_Types;
 with Ticker;
 with Oric_Display;
---  with Screen;  --  live SDL window; see the frame loop below
+with Screen;
 
 package body Emulation is
 
@@ -97,6 +97,7 @@ package body Emulation is
 
       Cpu.Reset (MyCPU);
 
+      Screen.Open ("Oric");
       Ticker.Init_Clock;
 
       Frames :
@@ -116,22 +117,16 @@ package body Emulation is
             end;
          end loop;
 
-         --  One video frame is done: render the Oric screen and
-         --  pace the emulation to a real 50 Hz / 1 MHz.
-         --
-         --  Output goes to a PPM image (verifiable without a GUI
-         --  and the renderer's test oracle). To switch to the live
-         --  SDL window once SDL2 is installed for the toolchain,
-         --  replace the Write_PPM line with:
-         --     Screen.Present (Fb);
-         --     exit Frames when Screen.Quit_Requested;
-         --  and add Screen.Open ("Oric") / Screen.Close around the
-         --  loop plus "with Screen;" above.
+         --  One video frame is done: render the Oric screen, show
+         --  it in the window, and pace to a real 50 Hz / 1 MHz.
          Oric_Display.Render (MyBus, Frame_No, Fb);
-         Oric_Display.Write_PPM (Fb, "screen.ppm");
+         Screen.Present (Fb);
+         exit Frames when Screen.Quit_Requested;
          Frame_No := Frame_No + 1;
          Ticker.End_Of_Frame;
       end loop Frames;
+
+      Screen.Close;
 
    end Run_Rom;
 
