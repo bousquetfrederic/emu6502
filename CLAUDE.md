@@ -18,7 +18,7 @@ alr build                       # build to bin/emu6502
 alr run -- binary <rom>         # run a 16 KB raw Oric ROM image (mapped at $C000)
 ```
 
-Optional trailing args on `binary`: `log_cpu`, `log_bus`, `log_video`
+Optional trailing args on `binary`: `log_cpu`, `log_bus`
 (write traces to `debug.txt`). A real Oric needs the genuine Atmos BASIC ROM;
 it carries its own reset/IRQ/NMI vectors and the character set in‑image.
 
@@ -36,8 +36,7 @@ The machine is a **bus + connectable devices** model:
   every cycle via `Data_Bus.Tick`.
   - `Connectables.Memory` — RAM/ROM, optional write‑protect, file loaders.
   - `Connectables.Versatile_Interface_Adapter` — 6522 VIA.
-  - `Connectables.Video` — **legacy/unused**, kept only so `emu6502.adb`'s
-    `log_video` flag still compiles. The screen is plain RAM now (see below).
+  (The screen is plain RAM scanned by `Oric_Display`, not a device.)
 - `Cpu` — cycle‑stepped FSM. `Cpu.Tick` decrements the current
   instruction's cycle count and executes on 0; opcode→instruction table in
   `cpu-instruction_from_op_code.adb`; operations split across
