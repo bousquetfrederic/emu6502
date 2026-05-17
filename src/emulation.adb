@@ -2,11 +2,12 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Data_Bus;
 with Data_Bus.Logging;
 with Connectables.Memory;
-with Connectables.Video;
 with Connectables.Versatile_Interface_Adapter;
 with Cpu;
 with Data_Types;
 with Ticker;
+with Oric_Display;
+--  with Screen;  --  live SDL window; see the frame loop below
 
 package body Emulation is
 
@@ -14,7 +15,6 @@ package body Emulation is
                       Rom_Type : T_Rom_Type) is
 
       package CM renames Connectables.Memory;
-      package CV renames Connectables.Video;
       package CVia renames Connectables.Versatile_Interface_Adapter;
 
       use type Data_Types.T_Address;
@@ -29,15 +29,14 @@ package body Emulation is
       := new CVia.T_VIA (16#300#);
       MyPage3Ram_Ptr : constant CM.T_Memory_Ptr
       := new CM.T_Memory (16#310#, 16#3FF#);
+      --  $0400-$BFFF is plain RAM; the ULA scans the screen
+      --  ($BB80) and character generator ($B400) out of it.
       MyHighRam_Ptr : constant CM.T_Memory_Ptr
-      := new CM.T_Memory (16#400#, 16#BB7F#);
-      MyVid_Ptr : constant CV.T_Video_Ptr
-      := new CV.T_Video (16#BB80#, 28, 40);
-      MySmallRam_Ptr : constant CM.T_Memory_Ptr
-      := new CM.T_Memory (16#BFE0#, 16#BFFF#);
-      MyScreen  : Ada.Text_IO.File_Type;
+      := new CM.T_Memory (16#400#, 16#BFFF#);
 
       Dummy_Boolean : Boolean;
+      Frame_No      : Natural := 0;
+      Fb            : Oric_Display.Framebuffer;
 
    begin
 
@@ -45,7 +44,6 @@ package body Emulation is
       CM.Set_Writable (MyRom_Ptr.all, True);
       CM.Set_Writable (MyPage3Ram_Ptr.all, True);
       CM.Set_Writable (MyHighRam_Ptr.all, True);
-      CM.Set_Writable (MySmallRam_Ptr.all, True);
       if Rom_Type = TEXT then
          declare
             MyProgram : Ada.Text_IO.File_Type;
@@ -97,14 +95,6 @@ package body Emulation is
       (Bus    => MyBus,
        Device => Data_Bus.T_Data_Device (MyHighRam_Ptr));
 
-      Data_Bus.Connect_Device
-      (Bus    => MyBus,
-       Device => Data_Bus.T_Data_Device (MySmallRam_Ptr));
-
-      Data_Bus.Connect_Device
-      (Bus    => MyBus,
-       Device => Data_Bus.T_Data_Device (MyVid_Ptr));
-
       Cpu.Reset (MyCPU);
 
       Ticker.Init_Clock;
@@ -126,11 +116,20 @@ package body Emulation is
             end;
          end loop;
 
-         --  One video frame is done: refresh the screen and
+         --  One video frame is done: render the Oric screen and
          --  pace the emulation to a real 50 Hz / 1 MHz.
-         Create (MyScreen, Out_File, "screen.txt");
-         MyVid_Ptr.Refresh (MyScreen);
-         Close (MyScreen);
+         --
+         --  Output goes to a PPM image (verifiable without a GUI
+         --  and the renderer's test oracle). To switch to the live
+         --  SDL window once SDL2 is installed for the toolchain,
+         --  replace the Write_PPM line with:
+         --     Screen.Present (Fb);
+         --     exit Frames when Screen.Quit_Requested;
+         --  and add Screen.Open ("Oric") / Screen.Close around the
+         --  loop plus "with Screen;" above.
+         Oric_Display.Render (MyBus, Frame_No, Fb);
+         Oric_Display.Write_PPM (Fb, "screen.ppm");
+         Frame_No := Frame_No + 1;
          Ticker.End_Of_Frame;
       end loop Frames;
 

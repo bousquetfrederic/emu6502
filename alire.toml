@@ -13,3 +13,9 @@ executables = ["emu6502"]
 
 [[depends-on]]
 json = "^6.0.0"
+
+[[depends-on]]
+sdlada = "^2.5.20"
+
+[[depends-on]]
+libsdl2 = "^2.30.11"
