@@ -21,7 +21,8 @@ package body Cpu.Operations is
      (Proc       : in out T_Cpu;
       I          :        T_Instruction) is
    begin
-      if Proc.Current_Instruction.Addressing /= NONE
+      if Logging.Log_On
+        and then Proc.Current_Instruction.Addressing /= NONE
       then
          Logging.Dump_Current_Instruction (Proc);
          Logging.Dump_Registers (Proc);
