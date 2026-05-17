@@ -46,29 +46,6 @@ package body Connectables.Memory is
       end if;
    end Load_To_Memory;
 
-   procedure Load_Text_File_To_Memory
-     (Mem     : in out T_Memory'Class;
-      Address : Data_Types.T_Address;
-      File    : Ada.Text_IO.File_Type)
-   is
-      use Ada.Text_IO;
-      Where_To : Data_Types.T_Address := Address;
-   begin
-      while not End_Of_File (File) loop
-         declare
-            S : constant String := Get_Line (File);
-         begin
-            if S (S'First) /= '#'
-            then
-               Write_Byte
-                 (Mem, Where_To, Data_Types.T_Byte'Value
-                                   ("16#" & S (1 .. 2) & "#"));
-               Where_To := Where_To + Data_Types.One_Byte;
-            end if;
-         end;
-      end loop;
-   end Load_Text_File_To_Memory;
-
    procedure Load_Binary_File_To_Memory
      (Mem     : in out T_Memory'Class;
       Address : Data_Types.T_Address;

@@ -16,7 +16,6 @@ procedure Emu6502 is
 begin
 
    --  Command line arguments can be :
-   --  text   [name of rom]
    --  binary [name of rom]
    if Cli.Argument_Count < 2 then
       raise Argument_Error;
@@ -33,10 +32,8 @@ begin
    end loop;
    Create (Log_File.Log_File, Out_File, "debug.txt");
 
-   if Cli.Argument (1) = "text" then
-      Emulation.Run_Rom (Cli.Argument (2), Emulation.TEXT);
-   elsif Cli.Argument (1) = "binary" then
-      Emulation.Run_Rom (Cli.Argument (2), Emulation.BINARY);
+   if Cli.Argument (1) = "binary" then
+      Emulation.Run_Rom (Cli.Argument (2));
    else
       raise Argument_Error;
    end if;
@@ -49,7 +46,6 @@ exception
 
       New_Line;
       Put_Line ("Format is:");
-      Put_Line ("emu6502 text   [text rom filename]");
       Put_Line ("emu6502 binary [binary rom filename]");
 
 end Emu6502;

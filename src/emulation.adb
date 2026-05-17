@@ -1,4 +1,3 @@
-with Ada.Text_IO; use Ada.Text_IO;
 with Data_Bus;
 with Data_Bus.Logging;
 with Connectables.Memory;
@@ -11,8 +10,7 @@ with Screen;
 
 package body Emulation is
 
-   procedure Run_Rom (Rom_Name : String;
-                      Rom_Type : T_Rom_Type) is
+   procedure Run_Rom (Rom_Name : String) is
 
       package CM renames Connectables.Memory;
       package CVia renames Connectables.Versatile_Interface_Adapter;
@@ -44,34 +42,18 @@ package body Emulation is
       CM.Set_Writable (MyRom_Ptr.all, True);
       CM.Set_Writable (MyPage3Ram_Ptr.all, True);
       CM.Set_Writable (MyHighRam_Ptr.all, True);
-      if Rom_Type = TEXT then
-         declare
-            MyProgram : Ada.Text_IO.File_Type;
-         begin
-            Data_Bus.Logging.Address_Space_Of_Interest
-              := (16#0000#, 16#FFFF#);
-            --  No synthetic reset/IRQ/NMI vectors: a real Oric ROM
-            --  carries its own vectors and handlers at $FFFA-$FFFF.
-
-            Open (MyProgram, In_File, Rom_Name);
-
-            CM.Load_Text_File_To_Memory
-              (MyRom_Ptr.all, 16#C000#, MyProgram);
-
-            Close (MyProgram);
-         end;
-      else
-         declare
-            MyProgram : CM.Byte_Sequential_IO.File_Type;
-            use CM.Byte_Sequential_IO;
-         begin
-            Data_Bus.Logging.Address_Space_Of_Interest
-              := (16#0000#, 16#FFFF#);
-            CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
-            CM.Load_Binary_File_To_Memory
-              (MyRom_Ptr.all, 16#C000#, MyProgram);
-         end;
-      end if;
+      declare
+         MyProgram : CM.Byte_Sequential_IO.File_Type;
+         use CM.Byte_Sequential_IO;
+      begin
+         Data_Bus.Logging.Address_Space_Of_Interest
+           := (16#0000#, 16#FFFF#);
+         --  No synthetic reset/IRQ/NMI vectors: a real Oric ROM
+         --  carries its own vectors and handlers at $FFFA-$FFFF.
+         CM.Byte_Sequential_IO.Open (MyProgram, In_File, Rom_Name);
+         CM.Load_Binary_File_To_Memory
+           (MyRom_Ptr.all, 16#C000#, MyProgram);
+      end;
 
       CM.Set_Writable (MyRom_Ptr.all, False);
 

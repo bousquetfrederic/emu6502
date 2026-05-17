@@ -16,10 +16,9 @@ nothing to install.
 ```
 alr build                       # build to bin/emu6502
 alr run -- binary <rom>         # run a 16 KB raw Oric ROM image (mapped at $C000)
-alr run -- text   <rom>         # load a hex-text ROM
 ```
 
-Optional trailing args on `binary`/`text`: `log_cpu`, `log_bus`, `log_video`
+Optional trailing args on `binary`: `log_cpu`, `log_bus`, `log_video`
 (write traces to `debug.txt`). A real Oric needs the genuine Atmos BASIC ROM;
 it carries its own reset/IRQ/NMI vectors and the character set in‑image.
 
